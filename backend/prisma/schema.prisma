@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//--------ROLES------//
+model Role {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User[]
+
+  @@map("roles")
+}
+
+//--------USERS------//
+model User {
+  id        Int      @id @default(autoincrement())
+  roleId    Int
+  name      String
+  phone     String?
+  email     String   @unique
+  password  String
+  IsActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  role              Role               @relation(fields: [roleId], references: [id])
+  customerProfile   CustomerProfile?
+  technicianProfile TechnicianProfile?
+  address           Address[]
+
+  @@index([roleId])
+  @@map("users")
+}
+
+//--------CUSTOMER PROFILE------//
+model CustomerProfile {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  updatedAt DateTime @updatedAt
+
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address Address[]
+
+  @@map("customer_profiles")
+}
+
+//--------TECHNICIAN PROFILE------//
+model TechnicianProfile {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  firstName     String   @map("first_name")
+  lastName      String   @map("last_name")
+  ni_Number     String   @unique
+  id_Proof      String?  @map("id_proof_url")
+  id_proofKey   String   @map("id_proof_key")
+  profilePic    String   @map("profile_pic_url")
+  profilePicKey String?  @map("profile_pic_key")
+  bio           String?
+  status        String   @default("unavailable")
+  ratings       Float?   @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address Address[]
+
+  @@map("technician_profiles")
+}
+
+//--------ADDRESS------//
+model Address {
+  id                  Int  @id @default(autoincrement())
+  userId              Int
+  customerProfileId   Int?
+  technicianProfileId Int?
+
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  postalCode   String
+  country      String
+  latitude     Float?
+  longitude    Float?
+
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerProfile   CustomerProfile?   @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+  technicianProfile TechnicianProfile? @relation(fields: [technicianProfileId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([customerProfileId])
+  @@index([technicianProfileId])
+  @@map("addresses")
+}
+
+//--------SERVICECategories------//
+model ServiceCategory {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  sortedOrder Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  services Service[]
+
+  @@index([isActive])
+  @@index([sortedOrder])
+  @@map("service_categories")
+}
+
+//--------SERVICES------//
+model Service {
+  id                Int      @id @default(autoincrement())
+  categoryId        Int
+  name              String
+  slug              String   @unique
+  description       String?
+  imageUrl          String?
+  basePrice         Decimal  @default(0)
+  durationInMinutes Int      @default(0)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  category ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([isActive])
+  @@map("services")
+}
+
+//--------SERVICE AREAS------//
+model ServiceArea {
+  id         Int     @id @default(autoincrement())
+  name       String
+  postalCode String  @unique
+  city       String
+  country    String? @default("south wales")
+  latitude   Float?
+  longitude  Float?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, postalCode])
+  @@index([city])
+  @@index([postalCode])
+  @@index([isActive])
+  @@map("service_areas")
+}

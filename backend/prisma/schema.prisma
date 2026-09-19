@@ -39,6 +39,15 @@ model User {
   technicianProfile TechnicianProfile?
   address           Address[]
 
+  bookingStatusChanges BookingStatusHistory[]
+  jobSignatures        JobSignature[]
+  jobNotes             JobNote[]
+  jobPhotos            JobPhoto[]
+  notifications        Notification[]
+  reviewsAsReviewer    Review[]               @relation("Reviewer")
+  reviewsAsReviewee    Review[]               @relation("Reviewee")
+  auditLogs            AuditLog[]
+
   @@index([roleId])
   @@map("users")
 }
@@ -49,8 +58,11 @@ model CustomerProfile {
   userId    Int      @unique
   updatedAt DateTime @updatedAt
 
-  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  address Address[]
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address       Address[]
+  bookings      Booking[]
+  quoteRequests QuoteRequest[]
+  invoices      Invoice[]
 
   @@map("customer_profiles")
 }
@@ -72,8 +84,14 @@ model TechnicianProfile {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  address Address[]
+  user                   User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address                Address[]
+  technicianServices     TechnicianService[]
+  technicianServiceAreas TechnicianServiceArea[]
+  technicianAvailability TechnicianAvailability[]
+  technicianExceptions   TechnicianException[]
+  bookings               Booking[]
+  quotes                 Quote[]
 
   @@map("technician_profiles")
 }
@@ -101,6 +119,9 @@ model Address {
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   customerProfile   CustomerProfile?   @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
   technicianProfile TechnicianProfile? @relation(fields: [technicianProfileId], references: [id], onDelete: Cascade)
+
+  bookings      Booking[]
+  quoteRequests QuoteRequest[]
 
   @@index([userId])
   @@index([customerProfileId])
@@ -140,7 +161,10 @@ model Service {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  category ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category           ServiceCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  technicianServices TechnicianService[]
+  bookings           Booking[]
+  quoteRequests      QuoteRequest[]
 
   @@index([categoryId])
   @@index([isActive])
@@ -162,9 +186,503 @@ model ServiceArea {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  technicianServiceAreas TechnicianServiceArea[]
+
   @@unique([name, postalCode])
   @@index([city])
   @@index([postalCode])
   @@index([isActive])
   @@map("service_areas")
+}
+
+//--------TECHNICIAN SERVICES------//
+model TechnicianService {
+  id                  Int      @id @default(autoincrement())
+  technicianProfileId Int
+  serviceId           Int
+  price               Decimal  @default(0)
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  technicianProfile TechnicianProfile @relation(fields: [technicianProfileId], references: [id], onDelete: Cascade)
+
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@unique([technicianProfileId, serviceId])
+  @@index([technicianProfileId])
+  @@index([serviceId])
+  @@map("technician_services")
+}
+
+//--------TECHNICIAN SERVICE AREAS------//
+model TechnicianServiceArea {
+  id                  Int @id @default(autoincrement())
+  technicianProfileId Int
+  serviceAreaId       Int
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  technicianProfile TechnicianProfile @relation(fields: [technicianProfileId], references: [id], onDelete: Cascade)
+
+  serviceArea ServiceArea @relation(fields: [serviceAreaId], references: [id], onDelete: Restrict)
+
+  @@unique([technicianProfileId, serviceAreaId])
+  @@index([technicianProfileId])
+  @@index([serviceAreaId])
+  @@map("technician_service_areas")
+}
+
+//--------TECHNICIAN AVAILABILITY------//
+model TechnicianAvailability {
+  id                  Int    @id @default(autoincrement())
+  technicianProfileId Int
+  dayOfWeek           Int // 0 = Sunday, 1 = Monday, ..., 
+  startTime           String // Format: "HH:mm"
+  endTime             String // Format: "HH:mm"
+
+  isAvailable Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  technicianProfile TechnicianProfile @relation(fields: [technicianProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([technicianProfileId, dayOfWeek, startTime, endTime])
+  @@index([technicianProfileId])
+  @@map("technician_availabilities")
+}
+
+//--------TECHNICIAN EXCEPTIONS------//
+model TechnicianException {
+  id                  Int      @id @default(autoincrement())
+  technicianProfileId Int
+  exceptionDate       DateTime // The date of the exception
+  reason              String? // Optional reason for the exception 
+  startTime           String // Format: "HH:mm"
+  endTime             String // Format: "HH:mm"
+
+  isAvailable Boolean @default(false) // Indicates if the technician is available during this exception period
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  technicianProfile TechnicianProfile @relation(fields: [technicianProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([technicianProfileId, exceptionDate, startTime, endTime])
+  @@index([technicianProfileId])
+  @@map("technician_exceptions")
+}
+
+//--------BOOKINGS------//
+model Booking {
+  id                  Int      @id @default(autoincrement())
+  booking_reference   String   @unique
+  customerProfileId   Int
+  serviceId           Int
+  addressId           Int
+  technicianProfileId Int?
+  status              String   @default("pending") // pending, confirmed, completed, cancelled
+  scheduledStart      DateTime
+  scheduledEnd        DateTime
+
+  description String?
+
+  estimatedPrice Decimal @default(0)
+  depositPaid    Decimal @default(0)
+
+  finalPrice Decimal? // Final price after service completion
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customerProfile   CustomerProfile    @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+  service           Service            @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  address           Address            @relation(fields: [addressId], references: [id], onDelete: Restrict)
+  technicianProfile TechnicianProfile? @relation(fields: [technicianProfileId], references: [id], onDelete: SetNull)
+
+  statusHistory BookingStatusHistory[]
+
+  quoteRequests QuoteRequest[]
+  jobs          Job[]
+  invoices      Invoice[]
+  reviews       Review[]
+
+  @@index([customerProfileId])
+  @@index([serviceId])
+  @@index([addressId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([technicianProfileId])
+  @@map("bookings")
+}
+
+//--------BOOKING STATUS HISTORY------//
+model BookingStatusHistory {
+  id          Int    @id @default(autoincrement())
+  bookingId   Int
+  status      String // pending, confirmed, completed, cancelled
+  changedById Int? // User ID of the person who changed the status
+
+  createdAt DateTime @default(now())
+
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  changedBy User?   @relation(fields: [changedById], references: [id], onDelete: SetNull)
+
+  @@index([bookingId])
+  @@index([changedById])
+  @@index([status])
+  @@index([createdAt])
+  @@map("booking_status_history")
+}
+
+//--------QUOTE REQUESTS------//
+model QuoteRequest {
+  id                Int      @id @default(autoincrement())
+  customerProfileId Int
+  serviceId         Int
+  addressId         Int
+  bookingId         Int?
+  description       String?
+  status            String   @default("pending") // pending, accepted, rejected
+  estimatedPrice    Decimal? @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+  service         Service         @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  address         Address         @relation(fields: [addressId], references: [id], onDelete: Restrict)
+  booking         Booking?        @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  quotes Quote[]
+
+  @@index([customerProfileId])
+  @@index([serviceId])
+  @@index([addressId])
+  @@index([status])
+  @@index([bookingId])
+  @@map("quote_requests")
+}
+
+//--------QUOTES------//
+model Quote {
+  id                  Int @id @default(autoincrement())
+  quoteRequestId      Int
+  technicianProfileId Int
+
+  quoteNumber String  @unique
+  price       Decimal @default(0)
+  status      String  @default("pending") // pending, accepted, rejected
+
+  validUntil DateTime
+  notes      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quoteRequest      QuoteRequest      @relation(fields: [quoteRequestId], references: [id], onDelete: Cascade)
+  technicianProfile TechnicianProfile @relation(fields: [technicianProfileId], references: [id], onDelete: Cascade)
+
+  items QuoteItem[]
+
+  @@index([quoteRequestId])
+  @@index([technicianProfileId])
+  @@index([status])
+  @@map("quotes")
+}
+
+//--------QUOTE ITEMS------//
+model QuoteItem {
+  id      Int @id @default(autoincrement())
+  quoteId Int
+
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Decimal @default(0)
+  totalPrice  Decimal @default(0)
+
+  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId])
+  @@map("quote_items")
+}
+
+//-------JOBS------//
+model Job {
+  id        Int    @id @default(autoincrement())
+  bookingId Int    @unique
+  status    String @default("pending") // pending, in_progress, completed, cancelled  
+
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  completionNotes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  notes     JobNote[]
+  photos    JobPhoto[]
+  materials JobMaterial[]
+  signature JobSignature?
+
+  @@index([bookingId])
+  @@index([completedAt])
+  @@index([status])
+  @@map("jobs")
+}
+
+//--------JOB NOTES------//
+model JobNote {
+  id        Int    @id @default(autoincrement())
+  jobId     Int
+  createdBy Int
+  note      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([createdBy])
+  @@map("job_notes")
+}
+
+//--------JOB PHOTOS------//
+model JobPhoto {
+  id         Int     @id @default(autoincrement())
+  jobId      Int
+  photoUrl   String
+  uploadedBy Int
+  caption    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([uploadedBy])
+  @@map("job_photos")
+}
+
+//--------JOB MATERIALS------//
+model JobMaterial {
+  id          Int     @id @default(autoincrement())
+  jobId       Int
+  name        String
+  description String?
+  quantity    Int     @default(1)
+  unitPrice   Decimal @default(0)
+  totalPrice  Decimal @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@map("job_materials")
+}
+
+//--------JOB SIGNATURES------//
+model JobSignature {
+  id           Int    @id @default(autoincrement())
+  jobId        Int    @unique
+  signatureUrl String
+  signedById   Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  job      Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  signedBy User @relation(fields: [signedById], references: [id], onDelete: Restrict)
+
+  @@index([jobId])
+  @@index([signedById])
+  @@map("job_signatures")
+}
+
+//--------INVOICES------//
+model Invoice {
+  id            Int    @id @default(autoincrement())
+  bookingId     Int    @unique
+  invoiceNumber String @unique
+
+  customerProfileId Int
+  subtotal          Decimal @default(0)
+  tax               Decimal @default(0)
+  total             Decimal @default(0)
+  status            String  @default("unpaid") // unpaid, paid, partially_paid
+
+  amountPaid Decimal? @default(0)
+  amountDue  Decimal? @default(0)
+
+  issuedAt DateTime  @default(now())
+  dueDate  DateTime?
+  paidAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  booking         Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+
+  items    InvoiceItem[]
+  payments Payment[]
+
+  @@index([bookingId])
+  @@index([customerProfileId])
+  @@index([status])
+  @@index([issuedAt])
+  @@map("invoices")
+}
+
+//--------INVOICE ITEMS------//
+model InvoiceItem {
+  id          Int     @id @default(autoincrement())
+  invoiceId   Int
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Decimal @default(0)
+  totalPrice  Decimal @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}
+
+//--------PAYMENTS------//
+model Payment {
+  id        Int @id @default(autoincrement())
+  invoiceId Int
+
+  paymentReference String @unique
+
+  amount        Decimal @default(0)
+  type          String // e.g., credit_card, paypal, bank_transfer
+  status        String  @default("pending") // pending, completed, failed
+  transactionId String? @unique
+
+  provider          String? // e.g., Stripe, PayPal, etc.
+  providerPaymentId String? // ID from the payment provider
+
+  paidAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  paymentEvents PaymentEvent[]
+
+  @@index([invoiceId])
+  @@index([status])
+  @@map("payments")
+}
+
+//--------PAYMENT EVENTS------//
+model PaymentEvent {
+  id        Int    @id @default(autoincrement())
+  paymentId Int
+  eventType String // e.g., payment_initiated, payment_completed, payment_failed
+  eventData Json? // Store any relevant data related to the event
+
+  providerEventId String? // ID from the payment provider for this event
+
+  payload Json? // Raw payload from the payment provider
+
+  createdAt DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([eventType])
+  @@index([providerEventId])
+  @@index([createdAt])
+  @@map("payment_events")
+}
+
+model Notification {
+  id     Int @id @default(autoincrement())
+  userId Int
+
+  title   String
+  message String
+  type    String // e.g., info, warning, error
+  data    Json? // Optional additional data related to the notification
+  isRead  Boolean   @default(false)
+  readAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+model Review {
+  id        Int @id @default(autoincrement())
+  bookingId Int @unique
+
+  reviewerId Int
+  revieweeId Int
+
+  rating  Float   @default(0)
+  comment String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  booking  Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  reviewer User    @relation("Reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewee User    @relation("Reviewee", fields: [revieweeId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([rating])
+  @@index([createdAt])
+  @@index([reviewerId])
+  @@index([revieweeId])
+  @@map("reviews")
+}
+
+model AuditLog {
+  id Int @id @default(autoincrement())
+
+  userId   Int?
+  action   String
+  entity   String
+  entityId Int?
+
+  oldValues Json?
+  newValues Json?
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

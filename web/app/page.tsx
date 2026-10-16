@@ -7,6 +7,7 @@ import Areas from "./components/ServiceAreas";
 import BookingCTA from "./components/BookingCTA";
 
 
+
 export default function Home() {
   return (
     <main>

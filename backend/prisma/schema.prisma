@@ -24,16 +24,16 @@ model Role {
 
 //--------USERS------//
 model User {
-  id           Int      @id @default(autoincrement())
+  id           Int     @id @default(autoincrement())
   roleId       Int
   name         String
   phone        String?
-  email        String   @unique
-  password     String
-  passwordhash String   @map("password_hash")
-  IsActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  email        String  @unique
+  passwordHash String  @map("password_hash")
+  isActive     Boolean @default(true) @map("IsActive")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   role              Role               @relation(fields: [roleId], references: [id])
   customerProfile   CustomerProfile?

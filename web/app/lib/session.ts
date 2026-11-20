@@ -12,6 +12,8 @@ export type SessionUser = {
   email: string;
   phone: string | null;
   role: string;
+  /** Technicians only: PENDING until a super admin approves them. */
+  approvalStatus?: "PENDING" | "APPROVED" | "REJECTED";
 };
 
 // Where each role lands after logging in.

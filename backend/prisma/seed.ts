@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client.js';
+import * as bcrypt from 'bcrypt';
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -61,6 +62,44 @@ const serviceAreas = [
   { name: 'Maesteg', city: 'Maesteg', postalCode: 'CF34', latitude: 51.6103, longitude: -3.6567 },
 ];
 
+/*
+ * The default "real admin" (super_admin).
+ * Credentials come from the environment, never from code:
+ *   SUPER_ADMIN_EMAIL, SUPER_ADMIN_PASSWORD, SUPER_ADMIN_NAME (optional)
+ * If the account already exists it is left untouched (the password is NOT reset).
+ */
+async function seedSuperAdmin() {
+  const email = process.env.SUPER_ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.SUPER_ADMIN_PASSWORD;
+  const name = process.env.SUPER_ADMIN_NAME?.trim() || 'ValleyFix Admin';
+
+  if (!email || !password) {
+    console.log('Super admin: skipped (set SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD to create it).');
+    return;
+  }
+  if (password.length < 12) {
+    throw new Error('SUPER_ADMIN_PASSWORD must be at least 12 characters.');
+  }
+
+  const role = await prisma.role.findUniqueOrThrow({ where: { name: 'super_admin' } });
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    console.log(`Super admin: ${email} already exists (left unchanged).`);
+    return;
+  }
+
+  await prisma.user.create({
+    data: {
+      name,
+      email,
+      passwordHash: await bcrypt.hash(password, 12),
+      roleId: role.id,
+    },
+  });
+  console.log(`Super admin: created ${email}.`);
+}
+
 async function main() {
   for (const name of roles) {
     await prisma.role.upsert({
@@ -98,6 +137,8 @@ async function main() {
     });
   }
   console.log(`Service areas: ${serviceAreas.length}`);
+
+  await seedSuperAdmin();
 
   console.log('Seed completed successfully.');
 }

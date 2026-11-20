@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../prisma/prisma.service.js';
+import type { TechnicianApprovalStatus } from '../generated/prisma/enums.js';
 
 // The data we put inside the token when the user logs in (see AuthService).
 export type JwtPayload = {
@@ -18,6 +19,8 @@ export type AuthenticatedUser = {
   email: string;
   phone: string | null;
   role: string;
+  /** Only for technicians: PENDING until a super admin approves them. */
+  approvalStatus?: TechnicianApprovalStatus;
 };
 
 @Injectable()
@@ -46,7 +49,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
-      include: { role: true },
+      include: {
+        role: true,
+        technicianProfile: { select: { approvalStatus: true } },
+      },
     });
 
     if (!user || !user.isActive) {
@@ -59,6 +65,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       email: user.email,
       phone: user.phone,
       role: user.role.name,
+      ...(user.technicianProfile && {
+        approvalStatus: user.technicianProfile.approvalStatus,
+      }),
     };
   }
 }

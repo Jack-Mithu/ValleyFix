@@ -69,6 +69,20 @@ export class UploadsService {
     };
   }
 
+  /**
+   * Turns a stored relative path (e.g. "identity/<uuid>.pdf") into an absolute
+   * path, refusing anything that would escape the technician uploads folder.
+   */
+  resolveTechnicianFile(storedPath: string): string {
+    const absolutePath = resolve(this.uploadRoot, storedPath);
+
+    if (!absolutePath.startsWith(this.uploadRoot + '\\') && !absolutePath.startsWith(this.uploadRoot + '/')) {
+      throw new BadRequestException('Invalid file path.');
+    }
+
+    return absolutePath;
+  }
+
   async deleteFile(path: string): Promise<void> {
     const identityDirectory = resolve(this.uploadRoot, 'identity');
     const profileDirectory = resolve(this.uploadRoot, 'profiles');

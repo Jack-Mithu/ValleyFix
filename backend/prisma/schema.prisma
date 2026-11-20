@@ -68,6 +68,13 @@ model CustomerProfile {
   @@map("customer_profiles")
 }
 
+//--------TECHNICIAN APPROVAL------//
+enum TechnicianApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 //--------TECHNICIAN PROFILE------//
 model TechnicianProfile {
   id            Int      @id @default(autoincrement())
@@ -82,6 +89,12 @@ model TechnicianProfile {
   bio           String?
   status        String   @default("unavailable")
   ratings       Float?   @default(0)
+
+  // Admin review: technicians cannot work until a super admin approves them.
+  approvalStatus  TechnicianApprovalStatus @default(PENDING) @map("approval_status")
+  reviewedAt      DateTime?                @map("reviewed_at")
+  reviewedById    Int?                     @map("reviewed_by_id")
+  rejectionReason String?                  @map("rejection_reason")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -94,6 +107,7 @@ model TechnicianProfile {
   bookings               Booking[]
   quotes                 Quote[]
 
+  @@index([approvalStatus])
   @@map("technician_profiles")
 }
 

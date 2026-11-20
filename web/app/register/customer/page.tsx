@@ -126,10 +126,10 @@ export default function CustomerRegistrationPage() {
   };
 
   const inputClass =
-    "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10";
+    "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-oxford-900 outline-none transition placeholder:text-slate-400 focus:border-oxford-600 focus:ring-4 focus:ring-oxford-600/10";
 
   const iconInputClass =
-    "h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10";
+    "h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-oxford-900 outline-none transition placeholder:text-slate-400 focus:border-oxford-600 focus:ring-4 focus:ring-oxford-600/10";
 
   if (success) {
     return (
@@ -143,7 +143,7 @@ export default function CustomerRegistrationPage() {
             <CheckCircle2 size={42} className="text-green-600" />
           </div>
 
-          <h1 className="mt-6 text-3xl font-bold text-slate-950">
+          <h1 className="mt-6 text-3xl font-bold text-oxford-900">
             Account created successfully!
           </h1>
 
@@ -154,7 +154,7 @@ export default function CustomerRegistrationPage() {
 
           <Link
             href="/login"
-            className="mt-8 inline-flex rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+            className="mt-8 inline-flex rounded-xl bg-oxford-900 px-6 py-3 font-semibold text-white transition hover:bg-oxford-700"
           >
             Continue to sign in
           </Link>
@@ -169,20 +169,20 @@ export default function CustomerRegistrationPage() {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold text-white">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-oxford-900 text-xl font-bold text-gold-400">
               V
             </div>
 
-            <span className="text-2xl font-bold text-slate-900">
-              Valley<span className="text-blue-600">Fix</span>
+            <span className="text-2xl font-bold text-oxford-900">
+              Valley<span className="text-marigold-600">Fix</span>
             </span>
           </Link>
 
-          <p className="hidden text-sm text-slate-500 sm:block">
+          <p className="hidden text-sm text-slate-600 sm:block">
             Already registered?{" "}
             <Link
               href="/login"
-              className="font-semibold text-blue-600 hover:text-blue-700"
+              className="font-semibold text-oxford-900 hover:text-oxford-700"
             >
               Sign in
             </Link>
@@ -200,7 +200,7 @@ export default function CustomerRegistrationPage() {
           {/* Back navigation */}
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-blue-600"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-oxford-900"
           >
             <ArrowLeft size={17} />
             Back to account types
@@ -208,12 +208,12 @@ export default function CustomerRegistrationPage() {
 
           {/* Introduction */}
           <div className="mt-7">
-            <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700">
+            <div className="inline-flex items-center gap-2 rounded-full bg-oxford-50 px-3 py-1.5 text-sm font-semibold text-oxford-700">
               <Home size={16} />
               Customer registration
             </div>
 
-            <h1 className="mt-5 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+            <h1 className="mt-5 text-3xl font-bold tracking-tight text-oxford-900 sm:text-4xl">
               Create your account
             </h1>
 
@@ -230,16 +230,16 @@ export default function CustomerRegistrationPage() {
             {/* Personal information */}
             <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
               <div className="flex items-center gap-3 border-b border-slate-100 pb-5">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-oxford-50 text-oxford-900">
                   <User size={21} />
                 </div>
 
                 <div>
-                  <h2 className="font-bold text-slate-950">
+                  <h2 className="font-bold text-oxford-900">
                     Personal information
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-slate-600">
                     Your account details
                   </p>
                 </div>
@@ -436,16 +436,16 @@ export default function CustomerRegistrationPage() {
             {/* Address */}
             <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
               <div className="flex items-center gap-3 border-b border-slate-100 pb-5">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gold-50 text-marigold-800">
                   <MapPin size={21} />
                 </div>
 
                 <div>
-                  <h2 className="font-bold text-slate-950">
+                  <h2 className="font-bold text-oxford-900">
                     Home address
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-slate-600">
                     Where should we provide your services?
                   </p>
                 </div>
@@ -574,7 +574,7 @@ export default function CustomerRegistrationPage() {
                   name="isDefault"
                   checked={formData.isDefault}
                   onChange={updateField}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  className="mt-1 h-4 w-4 rounded border-slate-300 text-oxford-900 focus:ring-oxford-600"
                 />
 
                 <span>
@@ -582,7 +582,7 @@ export default function CustomerRegistrationPage() {
                     Save as my default address
                   </span>
 
-                  <span className="mt-1 block text-xs leading-5 text-slate-500">
+                  <span className="mt-1 block text-xs leading-5 text-slate-600">
                     Use this address by default when arranging a service.
                   </span>
                 </span>
@@ -606,14 +606,14 @@ export default function CustomerRegistrationPage() {
                 disabled={loading}
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-oxford-900 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-oxford-900/20 transition hover:bg-oxford-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? "Creating your account..." : "Create customer account"}
 
                 {!loading && <ArrowRight size={18} />}
               </motion.button>
 
-              <p className="mt-4 text-center text-xs leading-5 text-slate-500">
+              <p className="mt-4 text-center text-xs leading-5 text-slate-600">
                 By creating an account, you agree to ValleyFix&apos;s terms
                 and privacy policy.
               </p>
@@ -621,11 +621,11 @@ export default function CustomerRegistrationPage() {
           </form>
 
           {/* Sign in */}
-          <p className="mt-8 text-center text-sm text-slate-500">
+          <p className="mt-8 text-center text-sm text-slate-600">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-semibold text-blue-600 hover:text-blue-700"
+              className="font-semibold text-oxford-900 hover:text-oxford-700"
             >
               Sign in
             </Link>

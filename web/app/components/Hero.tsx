@@ -1,305 +1,219 @@
 "use client";
 
-import { motion } from "motion/react";
+import Link from "next/link";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "motion/react";
 import {
   ArrowRight,
-  CheckCircle2,
+  BadgeCheck,
+  CalendarCheck,
   Clock3,
+  Droplets,
+  Lightbulb,
   MapPin,
   ShieldCheck,
-  Star,
+  Truck,
   Wrench,
 } from "lucide-react";
+import ValleyScene from "./ValleyScene";
+import { usePauseOffscreen } from "./usePauseOffscreen";
+
+const quickServices = [
+  { label: "Plumbing", icon: Droplets },
+  { label: "Electrical", icon: Lightbulb },
+  { label: "Handyman", icon: Wrench },
+];
 
 export default function Hero() {
+  const ref = useRef<HTMLElement>(null);
+  // Stop the hero animations once it has scrolled out of view.
+  usePauseOffscreen(ref);
+
+  // 0 when the hero is at the top of the screen, 1 when it has scrolled away.
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, -90]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+
   return (
-    <section className="relative min-h-screen overflow-hidden bg-slate-50 text-slate-900">
+    <section
+      ref={ref}
+      className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-gradient-to-b from-oxford-950 via-oxford-900 to-oxford-700 text-white"
+    >
+      <ValleyScene progress={scrollYProgress} edgeFill="#ffffff" />
 
-      {/* Soft background decorations */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{
-            x: [0, 40, 0],
-            y: [0, -30, 0],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute left-[5%] top-[15%] h-72 w-72 rounded-full bg-blue-200/40 blur-3xl"
-        />
+      <motion.div
+        style={{ y: contentY, opacity: contentOpacity }}
+        className="relative mx-auto grid w-full max-w-7xl items-center gap-12 px-5 pb-64 pt-32 sm:px-6 sm:pb-40 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:pb-48"
+      >
+        {/* Left: message */}
+        <div>
+          <motion.span
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-oxford-50 backdrop-blur-md"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-gold-400" />
+            </span>
+            Local home services across South Wales
+          </motion.span>
 
-        <motion.div
-          animate={{
-            x: [0, -50, 0],
-            y: [0, 40, 0],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute bottom-[5%] right-[5%] h-96 w-96 rounded-full bg-teal-200/40 blur-3xl"
-        />
+          <motion.h1
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="mt-6 max-w-3xl text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
+          >
+            Reliable help for your home.
+            <span className="mt-2 block bg-gradient-to-r from-gold-300 via-gold-400 to-marigold-500 bg-clip-text text-transparent">
+              Right when you need it.
+            </span>
+          </motion.h1>
 
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.06),transparent_40%)]" />
-      </div>
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mt-6 max-w-xl text-base leading-8 text-oxford-100 sm:text-lg"
+          >
+            Book trusted local technicians for repairs, maintenance and everyday
+            home services, from Cardiff to Swansea and the valleys in between.
+          </motion.p>
 
-      {/* Subtle grid */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.035]"
-        style={{
-          backgroundImage:
-            "linear-gradient(#64748b 1px, transparent 1px), linear-gradient(90deg, #64748b 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-        }}
-      />
-
-      <div className="relative mx-auto flex min-h-screen max-w-7xl items-center px-6 pb-16 pt-32 lg:px-8">
-        <div className="grid w-full items-center gap-16 lg:grid-cols-[1.05fr_0.95fr]">
-
-          {/* LEFT CONTENT */}
-          <div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700"
-            >
-              <span className="h-2 w-2 animate-pulse rounded-full bg-blue-600" />
-              Trusted local home services
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="max-w-3xl text-5xl font-bold leading-[1.05] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl"
-            >
-              Reliable help for your home.
-
-              <span className="mt-2 block text-blue-600">
-                Right when you need it.
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 25 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="mt-7 max-w-xl text-lg leading-8 text-slate-600"
-            >
-              Book trusted local professionals for repairs, maintenance and
-              everyday home services across South Wales.
-            </motion.p>
-
-            {/* Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="mt-9 flex flex-col gap-3 sm:flex-row"
-            >
-              <motion.a
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mt-9 flex flex-col gap-3 sm:flex-row"
+          >
+            <motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.97 }}>
+              <Link
                 href="/register"
-                whileHover={{ y: -3 }}
-                whileTap={{ scale: 0.97 }}
-                className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-6 py-3.5 font-semibold text-white shadow-xl shadow-blue-600/20 transition-colors hover:bg-blue-700"
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gold-400 px-7 py-4 font-semibold text-oxford-900 shadow-xl shadow-gold-500/30 transition-colors hover:bg-marigold-400 sm:w-auto"
               >
                 Book a service
-
-                <ArrowRight
-                  size={18}
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />
-              </motion.a>
-
-              <motion.a
-                href="#services"
-                whileHover={{ y: -3 }}
-                whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 py-3.5 font-semibold text-slate-700 shadow-sm transition-all hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-              >
-                Explore services
-              </motion.a>
+                <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+              </Link>
             </motion.div>
 
-            {/* Trust points */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 0.7 }}
-              className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-500"
+            <motion.a
+              href="#services"
+              whileHover={{ y: -3 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/5 px-7 py-4 font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/15"
             >
-              <span className="flex items-center gap-2">
-                <CheckCircle2 size={16} className="text-green-600" />
-                Verified professionals
-              </span>
-
-              <span className="flex items-center gap-2">
-                <ShieldCheck size={16} className="text-green-600" />
-                Secure booking
-              </span>
-
-              <span className="flex items-center gap-2">
-                <Clock3 size={16} className="text-green-600" />
-                Flexible appointments
-              </span>
-            </motion.div>
-          </div>
-
-          {/* RIGHT VISUAL */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, x: 30 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="relative mx-auto w-full max-w-xl"
-          >
-
-            {/* Main card */}
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="relative aspect-square overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white p-5 shadow-2xl shadow-slate-300/50"
-            >
-              <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-[2rem] bg-gradient-to-br from-blue-50 via-white to-teal-50 p-7">
-
-                <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-blue-200/50 blur-3xl" />
-
-                <div className="relative">
-                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
-                    <Wrench size={28} />
-                  </div>
-
-                  <p className="text-sm font-medium text-slate-500">
-                    Your local service
-                  </p>
-
-                  <h2 className="mt-2 text-3xl font-bold text-slate-900">
-                    Home repairs,
-                    <br />
-                    made simple.
-                  </h2>
-                </div>
-
-                <div className="relative space-y-3">
-
-                  {/* Service card */}
-                  <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-lg shadow-slate-200/50 backdrop-blur-xl">
-                    <div className="flex items-center justify-between">
-
-                      <div>
-                        <p className="text-sm font-semibold text-slate-900">
-                          Plumbing service
-                        </p>
-
-                        <p className="mt-1 text-xs text-slate-500">
-                          Professional technician
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-1 text-sm font-semibold text-amber-500">
-                        <Star size={14} fill="currentColor" />
-                        4.9
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Location */}
-                  <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-lg shadow-slate-200/50 backdrop-blur-xl">
-
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
-                      <MapPin size={18} className="text-blue-600" />
-                    </div>
-
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">
-                        South Wales
-                      </p>
-
-                      <p className="text-xs text-slate-500">
-                        Cardiff · Bridgend · Swansea
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Floating rating */}
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="absolute -left-5 top-16 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-300/50 sm:-left-10"
-            >
-              <div className="flex items-center gap-3">
-
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50">
-                  <Star
-                    size={19}
-                    className="text-amber-500"
-                    fill="currentColor"
-                  />
-                </div>
-
-                <div>
-                  <p className="text-sm font-bold text-slate-900">
-                    4.9/5
-                  </p>
-
-                  <p className="text-xs text-slate-500">
-                    Customer rating
-                  </p>
-                </div>
-
-              </div>
-            </motion.div>
-
-            {/* Floating booking */}
-            <motion.div
-              animate={{ y: [0, 9, 0] }}
-              transition={{
-                duration: 4.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="absolute -bottom-5 -right-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-300/50 sm:-right-8"
-            >
-              <div className="flex items-center gap-3">
-
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50">
-                  <CheckCircle2
-                    size={19}
-                    className="text-green-600"
-                  />
-                </div>
-
-                <div>
-                  <p className="text-sm font-bold text-slate-900">
-                    Booking confirmed
-                  </p>
-
-                  <p className="text-xs text-slate-500">
-                    Your technician is on the way
-                  </p>
-                </div>
-
-              </div>
-            </motion.div>
-
+              Explore services
+            </motion.a>
           </motion.div>
+
+          <motion.ul
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.6 }}
+            className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm text-oxford-100"
+          >
+            {[
+              { icon: BadgeCheck, label: "ID-verified technicians" },
+              { icon: ShieldCheck, label: "Secure booking" },
+              { icon: Clock3, label: "Flexible appointments" },
+            ].map(({ icon: Icon, label }) => (
+              <li key={label} className="flex items-center gap-2">
+                <Icon size={16} className="text-gold-400" />
+                {label}
+              </li>
+            ))}
+          </motion.ul>
         </div>
-      </div>
+
+        {/* Right: animated booking preview */}
+        <motion.div
+          initial={{ opacity: 0, y: 40, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+          className="relative mx-auto w-full max-w-md"
+        >
+          <div className="animate-float rounded-[2rem] border border-white/15 bg-oxford-900/85 p-5 shadow-2xl shadow-oxford-950/50 sm:p-6">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-white">Book a service</p>
+              <span className="rounded-full bg-gold-400/15 px-3 py-1 text-xs font-semibold text-gold-300">
+                Takes 2 minutes
+              </span>
+            </div>
+
+            {/* Service choice */}
+            <div className="mt-5 grid grid-cols-3 gap-2">
+              {quickServices.map(({ label, icon: Icon }, i) => (
+                <div
+                  key={label}
+                  className={`flex flex-col items-center gap-2 rounded-2xl border p-3 text-xs font-medium ${
+                    i === 0
+                      ? "border-gold-400 bg-gold-400 text-oxford-900"
+                      : "border-white/10 bg-white/5 text-oxford-50"
+                  }`}
+                >
+                  <Icon size={20} />
+                  {label}
+                </div>
+              ))}
+            </div>
+
+            {/* Details */}
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center gap-3 rounded-2xl bg-white/5 p-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-oxford-50/10">
+                  <CalendarCheck size={17} className="text-gold-300" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-white">Tomorrow, 10:00 – 12:00</p>
+                  <p className="text-xs text-oxford-200">Choose a time that suits you</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 rounded-2xl bg-white/5 p-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-oxford-50/10">
+                  <MapPin size={17} className="text-gold-300" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-white">Cardiff, CF14</p>
+                  <p className="truncate text-xs text-oxford-200">Cardiff · Bridgend · Swansea · Maesteg</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Live status */}
+            <div className="mt-4 rounded-2xl bg-oxford-950/60 p-4">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gold-400 text-oxford-900">
+                  <Truck size={17} />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-white">Technician on the way</p>
+                  <p className="text-xs text-oxford-200">You&apos;ll get updates at every step</p>
+                </div>
+              </div>
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+                {/* CSS (not JS) loop, so it can be paused off-screen; scaleX avoids re-layout. */}
+                <div className="h-full origin-left animate-progress rounded-full bg-gradient-to-r from-gold-400 to-marigold-500" />
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Scroll hint */}
+      <motion.a
+        href="#services"
+        aria-label="Scroll to services"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2 }}
+        className="absolute bottom-16 left-1/2 hidden -translate-x-1/2 sm:block"
+      >
+        <span className="flex h-10 w-6 animate-hint items-start justify-center rounded-full border-2 border-white/30 p-1.5">
+          <span className="h-2 w-1 rounded-full bg-gold-400" />
+        </span>
+      </motion.a>
     </section>
   );
 }

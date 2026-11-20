@@ -368,7 +368,7 @@ export default function TechnicianRegistrationPage() {
   };
 
   const inputClass =
-    "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10";
+    "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-oxford-900 outline-none transition placeholder:text-slate-400 focus:border-oxford-600 focus:ring-4 focus:ring-oxford-600/10";
 
   const labelClass =
     "mb-2 block text-sm font-semibold text-slate-700";
@@ -381,11 +381,11 @@ export default function TechnicianRegistrationPage() {
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-xl sm:p-12"
         >
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-teal-50">
-            <CheckCircle2 size={44} className="text-teal-700" />
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gold-50">
+            <CheckCircle2 size={44} className="text-marigold-800" />
           </div>
 
-          <h1 className="mt-7 text-3xl font-bold text-slate-950">
+          <h1 className="mt-7 text-3xl font-bold text-oxford-900">
             Application ready!
           </h1>
 
@@ -394,16 +394,16 @@ export default function TechnicianRegistrationPage() {
             the backend, you will be able to submit it for official review.
           </p>
 
-          <div className="mt-7 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-left">
+          <div className="mt-7 rounded-2xl border border-gold-200 bg-gold-50 p-5 text-left">
             <div className="flex items-start gap-3">
-              <Clock size={21} className="mt-0.5 text-amber-700" />
+              <Clock size={21} className="mt-0.5 text-marigold-800" />
 
               <div>
-                <h2 className="font-semibold text-amber-900">
+                <h2 className="font-semibold text-marigold-900">
                   Admin approval required
                 </h2>
 
-                <p className="mt-1 text-sm leading-6 text-amber-800">
+                <p className="mt-1 text-sm leading-6 text-marigold-800">
                   Technicians must be approved by the ValleyFix team before
                   they can operate on the platform.
                 </p>
@@ -413,7 +413,7 @@ export default function TechnicianRegistrationPage() {
 
           <Link
             href="/"
-            className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-blue-700"
+            className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-oxford-900 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-oxford-700"
           >
             Return home
             <ArrowRight size={18} />
@@ -429,18 +429,18 @@ export default function TechnicianRegistrationPage() {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold text-white">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-oxford-900 text-xl font-bold text-gold-400">
               V
             </div>
 
-            <span className="text-2xl font-bold text-slate-900">
-              Valley<span className="text-blue-600">Fix</span>
+            <span className="text-2xl font-bold text-oxford-900">
+              Valley<span className="text-marigold-600">Fix</span>
             </span>
           </Link>
 
           <Link
             href="/login"
-            className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+            className="text-sm font-semibold text-oxford-900 hover:text-oxford-700"
           >
             Sign in
           </Link>
@@ -451,19 +451,19 @@ export default function TechnicianRegistrationPage() {
         <div className="mx-auto max-w-4xl">
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-blue-600"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-oxford-900"
           >
             <ArrowLeft size={17} />
             Back to account types
           </Link>
 
           <div className="mt-7">
-            <div className="inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1.5 text-sm font-semibold text-teal-800">
+            <div className="inline-flex items-center gap-2 rounded-full bg-gold-50 px-3 py-1.5 text-sm font-semibold text-marigold-900">
               <Wrench size={16} />
               Technician application
             </div>
 
-            <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+            <h1 className="mt-4 text-3xl font-bold tracking-tight text-oxford-900 sm:text-4xl">
               Join the ValleyFix network
             </h1>
 
@@ -477,23 +477,23 @@ export default function TechnicianRegistrationPage() {
           <div className="mt-9 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-slate-500">
+                <p className="text-sm font-semibold text-slate-600">
                   STEP {currentStep + 1} OF {steps.length}
                 </p>
 
-                <h2 className="mt-1 text-lg font-bold text-slate-950">
+                <h2 className="mt-1 text-lg font-bold text-oxford-900">
                   {steps[currentStep]}
                 </h2>
               </div>
 
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-700">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-oxford-50 text-sm font-bold text-oxford-700">
                 {Math.round(((currentStep + 1) / steps.length) * 100)}%
               </div>
             </div>
 
             <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100">
               <motion.div
-                className="h-full rounded-full bg-blue-600"
+                className="h-full rounded-full bg-oxford-900"
                 initial={false}
                 animate={{
                   width: `${((currentStep + 1) / steps.length) * 100}%`,
@@ -508,10 +508,10 @@ export default function TechnicianRegistrationPage() {
                   <div
                     className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
                       index < currentStep
-                        ? "bg-teal-700 text-white"
+                        ? "bg-gold-400 text-oxford-900"
                         : index === currentStep
-                          ? "bg-blue-600 text-white"
-                          : "bg-slate-100 text-slate-500"
+                          ? "bg-oxford-900 text-white"
+                          : "bg-slate-100 text-slate-600"
                     }`}
                   >
                     {index < currentStep ? <Check size={15} /> : index + 1}
@@ -520,8 +520,8 @@ export default function TechnicianRegistrationPage() {
                   <p
                     className={`mt-2 text-xs ${
                       index === currentStep
-                        ? "font-semibold text-blue-700"
-                        : "text-slate-500"
+                        ? "font-semibold text-oxford-700"
+                        : "text-slate-600"
                     }`}
                   >
                     {step}
@@ -696,7 +696,7 @@ export default function TechnicianRegistrationPage() {
                         maxLength={2000}
                         required
                         placeholder="Tell customers about your services, the type of work you undertake and how you approach your work."
-                        className="w-full rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                        className="w-full rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-oxford-900 outline-none transition placeholder:text-slate-400 focus:border-oxford-600 focus:ring-4 focus:ring-oxford-600/10"
                       />
 
                       <p className="mt-2 text-right text-xs text-slate-400">
@@ -736,7 +736,7 @@ export default function TechnicianRegistrationPage() {
                           required
                         />
 
-                        <p className="mt-2 text-xs leading-5 text-slate-500">
+                        <p className="mt-2 text-xs leading-5 text-slate-600">
                           This is sensitive personal information. In production,
                           it must be transmitted securely and kept private.
                         </p>
@@ -770,13 +770,13 @@ export default function TechnicianRegistrationPage() {
                         }
                       />
 
-                      <div className="flex items-start gap-3 rounded-xl bg-blue-50 p-4">
+                      <div className="flex items-start gap-3 rounded-xl bg-oxford-50 p-4">
                         <LockKeyhole
                           size={19}
-                          className="mt-0.5 shrink-0 text-blue-700"
+                          className="mt-0.5 shrink-0 text-oxford-700"
                         />
 
-                        <p className="text-sm leading-6 text-blue-900">
+                        <p className="text-sm leading-6 text-oxford-950">
                           These documents must be stored privately and made
                           accessible only to authorised personnel.
                         </p>
@@ -899,7 +899,7 @@ export default function TechnicianRegistrationPage() {
                       description="Select every service you are prepared to undertake."
                     />
 
-                    <p className="mt-6 text-sm text-slate-500">
+                    <p className="mt-6 text-sm text-slate-600">
                       Select at least one service.
                     </p>
 
@@ -917,7 +917,7 @@ export default function TechnicianRegistrationPage() {
                             }
                             className={`flex min-h-16 items-center justify-between gap-3 rounded-xl border p-4 text-left text-sm font-semibold transition ${
                               selected
-                                ? "border-blue-500 bg-blue-50 text-blue-800"
+                                ? "border-oxford-600 bg-oxford-50 text-oxford-800"
                                 : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
                             }`}
                           >
@@ -926,7 +926,7 @@ export default function TechnicianRegistrationPage() {
                             <span
                               className={`flex h-6 w-6 items-center justify-center rounded-full ${
                                 selected
-                                  ? "bg-blue-600 text-white"
+                                  ? "bg-oxford-900 text-white"
                                   : "border border-slate-300"
                               }`}
                             >
@@ -937,7 +937,7 @@ export default function TechnicianRegistrationPage() {
                       })}
                     </div>
 
-                    <p className="mt-5 text-xs leading-5 text-slate-500">
+                    <p className="mt-5 text-xs leading-5 text-slate-600">
                       These are temporary demonstration options. We will
                       retrieve the actual active services from the backend
                       when the API is ready.
@@ -954,7 +954,7 @@ export default function TechnicianRegistrationPage() {
                       description="Choose the areas in which you are willing to accept work."
                     />
 
-                    <p className="mt-6 text-sm text-slate-500">
+                    <p className="mt-6 text-sm text-slate-600">
                       Select all applicable areas.
                     </p>
 
@@ -972,7 +972,7 @@ export default function TechnicianRegistrationPage() {
                             }
                             className={`flex min-h-16 items-center justify-between gap-3 rounded-xl border p-4 text-left text-sm font-semibold transition ${
                               selected
-                                ? "border-teal-600 bg-teal-50 text-teal-900"
+                                ? "border-marigold-500 bg-gold-50 text-marigold-900"
                                 : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
                             }`}
                           >
@@ -984,7 +984,7 @@ export default function TechnicianRegistrationPage() {
                             <span
                               className={`flex h-6 w-6 items-center justify-center rounded-full ${
                                 selected
-                                  ? "bg-teal-700 text-white"
+                                  ? "bg-gold-400 text-oxford-900"
                                   : "border border-slate-300"
                               }`}
                             >
@@ -995,7 +995,7 @@ export default function TechnicianRegistrationPage() {
                       })}
                     </div>
 
-                    <p className="mt-5 text-xs leading-5 text-slate-500">
+                    <p className="mt-5 text-xs leading-5 text-slate-600">
                       These are placeholder options for the frontend. The
                       production form will use the service areas configured
                       in ValleyFix.
@@ -1021,7 +1021,7 @@ export default function TechnicianRegistrationPage() {
                             key={day}
                             className={`rounded-xl border p-4 transition ${
                               availability.enabled
-                                ? "border-blue-200 bg-blue-50/50"
+                                ? "border-oxford-200 bg-oxford-50/50"
                                 : "border-slate-200 bg-white"
                             }`}
                           >
@@ -1037,7 +1037,7 @@ export default function TechnicianRegistrationPage() {
                                       e.target.checked,
                                     )
                                   }
-                                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                  className="h-4 w-4 rounded border-slate-300 text-oxford-900 focus:ring-oxford-600"
                                 />
 
                                 <span className="text-sm font-semibold text-slate-800">
@@ -1209,8 +1209,8 @@ export default function TechnicianRegistrationPage() {
                         </div>
                       </ReviewSection>
 
-                      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-                        <p className="text-sm leading-6 text-amber-900">
+                      <div className="rounded-xl border border-gold-200 bg-gold-50 p-4">
+                        <p className="text-sm leading-6 text-marigold-900">
                           By submitting, you acknowledge that your application
                           must be reviewed by ValleyFix. You cannot accept
                           bookings until the required approval is granted.
@@ -1247,7 +1247,7 @@ export default function TechnicianRegistrationPage() {
                     <button
                       type="button"
                       onClick={nextStep}
-                      className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
+                      className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-oxford-900 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-oxford-900/20 transition hover:bg-oxford-700"
                     >
                       Continue
                       <ArrowRight size={17} />
@@ -1256,7 +1256,7 @@ export default function TechnicianRegistrationPage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-teal-700 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-teal-700/20 transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gold-400 px-6 py-3 text-sm font-bold text-oxford-900 shadow-lg shadow-gold-500/20 transition hover:bg-marigold-400 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {loading ? "Checking application..." : "Submit application"}
                       {!loading && <CheckCircle2 size={18} />}
@@ -1267,10 +1267,9 @@ export default function TechnicianRegistrationPage() {
             </AnimatePresence>
           </form>
 
-          <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-5 text-slate-500">
-            Your application contains sensitive information. We will implement
-            secure document uploads and server-side validation when connecting
-            the backend.
+          <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-5 text-slate-600">
+            Your documents are used only to verify your identity and are
+            reviewed by the ValleyFix team before your account is approved.
           </p>
         </div>
       </section>
@@ -1289,14 +1288,14 @@ function StepHeading({
 }) {
   return (
     <div className="flex items-start gap-4 border-b border-slate-100 pb-5">
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-oxford-50 text-oxford-900">
         {icon}
       </div>
 
       <div>
-        <h2 className="text-xl font-bold text-slate-950">{title}</h2>
+        <h2 className="text-xl font-bold text-oxford-900">{title}</h2>
 
-        <p className="mt-1 text-sm leading-6 text-slate-500">
+        <p className="mt-1 text-sm leading-6 text-slate-600">
           {description}
         </p>
       </div>
@@ -1327,9 +1326,9 @@ function FileUpload({
 
       <label
         htmlFor={id}
-        className="flex cursor-pointer flex-col items-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition hover:border-blue-400 hover:bg-blue-50/40"
+        className="flex cursor-pointer flex-col items-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition hover:border-oxford-400 hover:bg-oxford-50/40"
       >
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-oxford-900 shadow-sm">
           {file ? <FileImage size={23} /> : <Upload size={23} />}
         </div>
 
@@ -1337,7 +1336,7 @@ function FileUpload({
           {file ? file.name : "Choose a file to upload"}
         </span>
 
-        <span className="mt-1 text-xs leading-5 text-slate-500">
+        <span className="mt-1 text-xs leading-5 text-slate-600">
           {file
             ? `${(file.size / 1024 / 1024).toFixed(2)} MB`
             : description}
@@ -1392,12 +1391,12 @@ function ReviewSection({
   return (
     <section className="rounded-xl border border-slate-200 p-4 sm:p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h3 className="font-bold text-slate-900">{title}</h3>
+        <h3 className="font-bold text-oxford-900">{title}</h3>
 
         <button
           type="button"
           onClick={onEdit}
-          className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+          className="text-sm font-semibold text-oxford-900 hover:text-oxford-700"
         >
           Edit
         </button>
@@ -1417,7 +1416,7 @@ function ReviewRow({
 }) {
   return (
     <div className="flex flex-col justify-between gap-1 py-1 sm:flex-row sm:gap-4">
-      <span className="text-sm text-slate-500">{label}</span>
+      <span className="text-sm text-slate-600">{label}</span>
       <span className="break-all text-sm font-medium text-slate-800 sm:text-right">
         {value}
       </span>
@@ -1431,7 +1430,7 @@ function TagList({ items }: { items: string[] }) {
       {items.map((item) => (
         <span
           key={item}
-          className="rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-800"
+          className="rounded-full bg-oxford-50 px-3 py-1.5 text-sm font-medium text-oxford-800"
         >
           {item}
         </span>

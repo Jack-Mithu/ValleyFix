@@ -20,7 +20,7 @@ export default function PortalShell({
       <div className="mx-auto max-w-5xl">
         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
           <div className="flex items-start justify-between gap-4">
-            <p className="text-sm font-semibold text-blue-600">{label}</p>
+            <p className="text-sm font-semibold text-oxford-900">{label}</p>
 
             {/* Plain HTML form: works even before JavaScript loads. */}
             <form action="/api/auth/logout" method="post">
@@ -33,7 +33,7 @@ export default function PortalShell({
             </form>
           </div>
 
-          <h1 className="mt-3 text-3xl font-bold text-slate-900">
+          <h1 className="mt-3 text-3xl font-bold text-oxford-900">
             Welcome, {user.name}!
           </h1>
 
@@ -47,7 +47,7 @@ export default function PortalShell({
             {sections.map((item) => (
               <div key={item} className="rounded-xl border border-slate-200 p-5">
                 <h2 className="font-semibold text-slate-800">{item}</h2>
-                <p className="mt-2 text-sm text-slate-500">Coming soon</p>
+                <p className="mt-2 text-sm text-slate-600">Coming soon</p>
               </div>
             ))}
           </div>

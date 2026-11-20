@@ -1,8 +1,164 @@
 @import "tailwindcss";
 
+/*
+ * ValleyFix brand palette
+ * ------------------------------------------------------------------
+ * Change a brand color here and every page updates.
+ *
+ *   Oxford Blue   #002147  -> oxford-900  (brand, headings, primary buttons, dark sections)
+ *   Golden Amber  #FFBF00  -> gold-400    (main call-to-action, highlights on dark)
+ *   Marigold      #EAA221  -> marigold-500 (technician accents, icons, hovers)
+ *   Slate Grey    #708090  -> slate-500   (borders, icons, secondary text)
+ *   Steel Grey    #43464B  -> slate-700   (body text)
+ *
+ * Accessibility notes:
+ *   - Golden Amber / Marigold backgrounds use Oxford Blue text (white fails contrast).
+ *   - For small text on white, use slate-600 or darker (slate-500 is ~3.9:1).
+ *   - Red (errors) and green (success) are kept as status colors on purpose.
+ */
+@theme {
+  /* Oxford Blue */
+  --color-oxford-50: #f0f4f9;
+  --color-oxford-100: #dbe4f0;
+  --color-oxford-200: #b7c9e1;
+  --color-oxford-300: #8aa6cc;
+  --color-oxford-400: #5b7fb2;
+  --color-oxford-500: #355d96;
+  --color-oxford-600: #1f4477;
+  --color-oxford-700: #12325e;
+  --color-oxford-800: #0a2850;
+  --color-oxford-900: #002147;
+  --color-oxford-950: #001630;
+
+  /* Golden Amber */
+  --color-gold-50: #fff9e6;
+  --color-gold-100: #fff0bf;
+  --color-gold-200: #ffe180;
+  --color-gold-300: #ffd240;
+  --color-gold-400: #ffbf00;
+  --color-gold-500: #e6a800;
+  --color-gold-600: #b38300;
+  --color-gold-700: #805e00;
+  --color-gold-800: #5c4400;
+  --color-gold-900: #3d2d00;
+
+  /* Marigold */
+  --color-marigold-50: #fdf6e9;
+  --color-marigold-100: #fae8c4;
+  --color-marigold-200: #f5d189;
+  --color-marigold-300: #efb94e;
+  --color-marigold-400: #ecad35;
+  --color-marigold-500: #eaa221;
+  --color-marigold-600: #c4841a;
+  --color-marigold-700: #9a6614;
+  --color-marigold-800: #744c0f;
+  --color-marigold-900: #4f340a;
+
+  /* Slate Grey -> Steel Grey (replaces Tailwind's default slate scale) */
+  --color-slate-50: #f5f7f9;
+  --color-slate-100: #eaeef2;
+  --color-slate-200: #d6dde4;
+  --color-slate-300: #b9c3cd;
+  --color-slate-400: #94a1ae;
+  --color-slate-500: #708090;
+  --color-slate-600: #5b6977;
+  --color-slate-700: #43464b;
+  --color-slate-800: #35383c;
+  --color-slate-900: #26292c;
+  --color-slate-950: #18191c;
+
+  /* Background animations (use as animate-twinkle, animate-drift, ...) */
+  /* SVG effects use steps(): ~10-15 updates/s instead of 60 looks the same for
+     ambient motion but costs far less, because every SVG change means a repaint. */
+  --animate-twinkle: vf-twinkle 3.5s steps(40) infinite;
+  --animate-drift: vf-drift 60s linear infinite;
+  --animate-float: vf-float 6s ease-in-out infinite;
+  --animate-glow: vf-glow 6s steps(60) infinite;
+  --animate-flicker: vf-flicker 4s steps(16) infinite;
+  --animate-road: vf-road 1.6s steps(20) infinite;
+  --animate-pan: vf-pan 40s linear infinite;
+  --animate-float-lite: vf-float 6s steps(72) infinite;
+  --animate-progress: vf-progress 5.6s ease-in-out infinite;
+  --animate-hint: vf-hint 2s ease-in-out infinite;
+  --animate-sway: vf-sway 18s ease-in-out infinite alternate;
+  --animate-pulse-ring: vf-pulse-ring 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  /* Lighter variants for elements inside large SVG drawings (~8-10 updates/s). */
+  --animate-flow: vf-road 2.4s steps(24) infinite;
+  --animate-pulse-lite: vf-pulse-ring 2.4s steps(24) infinite;
+  --animate-tighten: vf-tighten 1.2s steps(12) infinite;
+  --animate-spark: vf-spark 1.8s steps(18) infinite;
+  --animate-fixed: vf-fixed 6s steps(1, end) infinite;
+
+  @keyframes vf-tighten {
+    0%, 100% { transform: rotate(-25deg); }
+    50% { transform: rotate(20deg); }
+  }
+  @keyframes vf-spark {
+    0% { transform: scale(0); opacity: 0; }
+    30% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.2) translateY(-6px); opacity: 0; }
+  }
+  /* A light that flickers while being repaired, then shines steadily. */
+  @keyframes vf-fixed {
+    0% { opacity: 0.25; }
+    8% { opacity: 1; }
+    12% { opacity: 0.2; }
+    18% { opacity: 0.9; }
+    22% { opacity: 0.3; }
+    30%, 100% { opacity: 1; }
+  }
+
+  @keyframes vf-twinkle {
+    0%, 100% { opacity: 0.25; }
+    50% { opacity: 1; }
+  }
+  @keyframes vf-drift {
+    from { transform: translateX(-30vw); }
+    to { transform: translateX(130vw); }
+  }
+  @keyframes vf-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes vf-glow {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 0.95; transform: scale(1.08); }
+  }
+  @keyframes vf-flicker {
+    0%, 100% { opacity: 1; }
+    45% { opacity: 0.55; }
+    55% { opacity: 0.9; }
+  }
+  @keyframes vf-road {
+    to { stroke-dashoffset: -64; }
+  }
+  /* Moves a tiled layer by exactly one tile (160px) so the loop is seamless.
+     transform runs on the GPU; background-position would repaint every frame. */
+  @keyframes vf-pan {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(160px, 160px, 0); }
+  }
+  @keyframes vf-progress {
+    0% { transform: scaleX(0.08); }
+    70%, 100% { transform: scaleX(0.78); }
+  }
+  @keyframes vf-hint {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+  @keyframes vf-sway {
+    from { transform: translateX(-48px); }
+    to { transform: translateX(48px); }
+  }
+  @keyframes vf-pulse-ring {
+    0% { transform: scale(0.8); opacity: 0.7; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+}
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: var(--color-slate-700);
 }
 
 @theme inline {
@@ -12,15 +168,44 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/*
+ * The pages are designed as a light brand theme, so the old automatic dark
+ * body colors (which clashed with the white cards) have been removed.
+ * A proper dark theme can be added later on top of these tokens.
+ */
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  /* Decorative backgrounds must never cause sideways scrolling on phones. */
+  overflow-x: clip;
+}
+
+/* SVG elements animated with CSS transforms scale/rotate around their own centre. */
+.vf-origin-center {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Off-screen animated backgrounds are paused (see usePauseOffscreen.ts). */
+[data-paused],
+[data-paused] * {
+  animation-play-state: paused !important;
+}
+
+/* Respect the operating-system "reduce motion" accessibility setting. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

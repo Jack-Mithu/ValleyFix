@@ -31,20 +31,20 @@ export default function RegisterPage() {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold text-white shadow-lg shadow-blue-600/20">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-oxford-900 text-xl font-bold text-gold-400 shadow-lg shadow-oxford-900/20">
               V
             </div>
 
-            <span className="text-2xl font-bold tracking-tight text-slate-900">
-              Valley<span className="text-blue-600">Fix</span>
+            <span className="text-2xl font-bold tracking-tight text-oxford-900">
+              Valley<span className="text-marigold-600">Fix</span>
             </span>
           </Link>
 
-          <p className="hidden text-sm text-slate-500 sm:block">
+          <p className="hidden text-sm text-slate-600 sm:block">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-semibold text-blue-600 transition hover:text-blue-700"
+              className="font-semibold text-oxford-900 transition hover:text-oxford-700"
             >
               Sign in
             </Link>
@@ -55,8 +55,8 @@ export default function RegisterPage() {
       {/* Main content */}
       <section className="relative overflow-hidden px-6 py-16 sm:py-20 lg:px-8">
         {/* Background decorations */}
-        <div className="pointer-events-none absolute -left-40 top-20 h-80 w-80 rounded-full bg-blue-100/70 blur-3xl" />
-        <div className="pointer-events-none absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-teal-100/60 blur-3xl" />
+        <div className="pointer-events-none absolute -left-40 top-20 h-80 w-80 rounded-full bg-oxford-100/70 blur-3xl" />
+        <div className="pointer-events-none absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-gold-100/60 blur-3xl" />
 
         <div className="relative mx-auto max-w-6xl">
           {/* Introduction */}
@@ -66,14 +66,14 @@ export default function RegisterPage() {
             transition={{ duration: 0.5 }}
             className="mx-auto max-w-3xl text-center"
           >
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-oxford-100 bg-white px-4 py-2 text-sm font-medium text-oxford-700 shadow-sm">
               <Sparkles size={16} />
               Welcome to ValleyFix
             </div>
 
-            <h1 className="text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
+            <h1 className="text-4xl font-bold tracking-tight text-oxford-900 sm:text-5xl lg:text-6xl">
               Let&apos;s get you
-              <span className="block text-blue-600">
+              <span className="block text-oxford-900">
                 started.
               </span>
             </h1>
@@ -92,19 +92,19 @@ export default function RegisterPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
               whileHover={{ y: -5 }}
-              className="group flex flex-col rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition-shadow hover:border-blue-200 hover:shadow-xl hover:shadow-blue-900/5 sm:p-9"
+              className="group flex flex-col rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition-shadow hover:border-oxford-200 hover:shadow-xl hover:shadow-oxford-950/5 sm:p-9"
             >
               <div className="flex items-start justify-between">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-oxford-50 text-oxford-900 transition-colors group-hover:bg-oxford-900 group-hover:text-white">
                   <Home size={27} />
                 </div>
 
-                <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
+                <span className="rounded-full bg-oxford-50 px-3 py-1.5 text-xs font-semibold text-oxford-700">
                   For customers
                 </span>
               </div>
 
-              <h2 className="mt-7 text-2xl font-bold text-slate-950">
+              <h2 className="mt-7 text-2xl font-bold text-oxford-900">
                 I need help at home
               </h2>
 
@@ -118,7 +118,7 @@ export default function RegisterPage() {
                   <div key={feature} className="flex items-start gap-3">
                     <CheckCircle2
                       size={20}
-                      className="mt-0.5 shrink-0 text-blue-600"
+                      className="mt-0.5 shrink-0 text-oxford-900"
                     />
 
                     <span className="text-sm leading-6 text-slate-700">
@@ -131,13 +131,13 @@ export default function RegisterPage() {
               <div className="mt-auto pt-9">
                 <Link
                   href="/register/customer"
-                  className="flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-4 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
+                  className="flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-oxford-900 px-5 py-4 text-sm font-bold text-white shadow-lg shadow-oxford-900/20 transition hover:bg-oxford-700"
                 >
                   Create customer account
                   <ArrowRight size={18} />
                 </Link>
 
-                <p className="mt-3 text-center text-xs text-slate-500">
+                <p className="mt-3 text-center text-xs text-slate-600">
                   Register and start using ValleyFix.
                 </p>
               </div>
@@ -149,19 +149,19 @@ export default function RegisterPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
               whileHover={{ y: -5 }}
-              className="group flex flex-col rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition-shadow hover:border-teal-200 hover:shadow-xl hover:shadow-teal-900/5 sm:p-9"
+              className="group flex flex-col rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition-shadow hover:border-gold-200 hover:shadow-xl hover:shadow-marigold-900/5 sm:p-9"
             >
               <div className="flex items-start justify-between">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 text-teal-700 transition-colors group-hover:bg-teal-700 group-hover:text-white">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gold-50 text-marigold-800 transition-colors group-hover:bg-gold-400 group-hover:text-oxford-900">
                   <Wrench size={27} />
                 </div>
 
-                <span className="rounded-full bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-800">
+                <span className="rounded-full bg-gold-50 px-3 py-1.5 text-xs font-semibold text-marigold-900">
                   For professionals
                 </span>
               </div>
 
-              <h2 className="mt-7 text-2xl font-bold text-slate-950">
+              <h2 className="mt-7 text-2xl font-bold text-oxford-900">
                 I offer home services
               </h2>
 
@@ -175,7 +175,7 @@ export default function RegisterPage() {
                   <div key={feature} className="flex items-start gap-3">
                     <CheckCircle2
                       size={20}
-                      className="mt-0.5 shrink-0 text-teal-700"
+                      className="mt-0.5 shrink-0 text-marigold-800"
                     />
 
                     <span className="text-sm leading-6 text-slate-700">
@@ -188,13 +188,13 @@ export default function RegisterPage() {
               <div className="mt-auto pt-9">
                 <Link
                   href="/register/technician"
-                  className="flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-teal-700 px-5 py-4 text-sm font-bold text-white shadow-lg shadow-teal-700/20 transition hover:bg-teal-800"
+                  className="flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-gold-400 px-5 py-4 text-sm font-bold text-oxford-900 shadow-lg shadow-gold-500/20 transition hover:bg-marigold-400"
                 >
                   Apply as a technician
                   <ArrowRight size={18} />
                 </Link>
 
-                <p className="mt-3 text-center text-xs text-slate-500">
+                <p className="mt-3 text-center text-xs text-slate-600">
                   Your application will be reviewed by our team.
                 </p>
               </div>
@@ -209,22 +209,22 @@ export default function RegisterPage() {
             className="mx-auto mt-12 flex max-w-3xl flex-col items-center justify-center gap-5 border-t border-slate-200 pt-8 sm:flex-row sm:gap-10"
           >
             <div className="flex items-center gap-2 text-sm text-slate-600">
-              <ShieldCheck size={19} className="text-teal-700" />
+              <ShieldCheck size={19} className="text-marigold-800" />
               A structured registration process
             </div>
 
             <div className="flex items-center gap-2 text-sm text-slate-600">
-              <ClipboardCheck size={19} className="text-teal-700" />
+              <ClipboardCheck size={19} className="text-marigold-800" />
               Technician applications reviewed
             </div>
           </motion.div>
 
           {/* Mobile sign in */}
-          <p className="mt-10 text-center text-sm text-slate-500 sm:hidden">
+          <p className="mt-10 text-center text-sm text-slate-600 sm:hidden">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-semibold text-blue-600 hover:text-blue-700"
+              className="font-semibold text-oxford-900 hover:text-oxford-700"
             >
               Sign in
             </Link>
@@ -234,14 +234,14 @@ export default function RegisterPage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-white px-6 py-6">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-sm text-slate-500 sm:flex-row">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-sm text-slate-600 sm:flex-row">
           <p>
             © {new Date().getFullYear()} ValleyFix. All rights reserved.
           </p>
 
           <Link
             href="/"
-            className="font-medium transition hover:text-blue-600"
+            className="font-medium transition hover:text-oxford-900"
           >
             Back to home
           </Link>

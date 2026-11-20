@@ -1,219 +1,118 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "motion/react";
 import {
   ArrowRight,
   Bath,
   Brush,
   Droplets,
+  Flame,
   Lightbulb,
-  Snowflake,
   Wrench,
+  type LucideIcon,
 } from "lucide-react";
+import { toolsPattern } from "./patterns";
+import { usePauseOffscreen } from "./usePauseOffscreen";
 
-const services = [
-  {
-    title: "Plumbing",
-    description: "Leaks, taps, toilets, pipes and everyday plumbing repairs.",
-    icon: Droplets,
-    color: "blue",
-  },
-  {
-    title: "Electrical",
-    description: "Reliable help with electrical repairs, fixtures and installations.",
-    icon: Lightbulb,
-    color: "amber",
-  },
-  {
-    title: "Cleaning",
-    description: "Professional cleaning services for homes and properties.",
-    icon: Brush,
-    color: "teal",
-  },
-  {
-    title: "Heating",
-    description: "Heating maintenance, repairs and home comfort services.",
-    icon: Snowflake,
-    color: "indigo",
-  },
-  {
-    title: "Bathroom",
-    description: "Repairs, maintenance and improvements for your bathroom.",
-    icon: Bath,
-    color: "cyan",
-  },
-  {
-    title: "Handyman",
-    description: "Practical help with repairs, assembly and general home maintenance.",
-    icon: Wrench,
-    color: "green",
-  },
+const services: { title: string; description: string; icon: LucideIcon }[] = [
+  { title: "Plumbing", description: "Leaks, taps, toilets, pipes and everyday plumbing repairs.", icon: Droplets },
+  { title: "Electrical", description: "Safe help with electrical repairs, fixtures and installations.", icon: Lightbulb },
+  { title: "Cleaning", description: "Professional cleaning for homes, move-outs and rental properties.", icon: Brush },
+  { title: "Heating", description: "Boiler checks, radiator issues and keeping your home warm.", icon: Flame },
+  { title: "Bathroom", description: "Repairs, sealing, fittings and small bathroom improvements.", icon: Bath },
+  { title: "Handyman", description: "Repairs, assembly, hanging and general home maintenance.", icon: Wrench },
 ];
 
-const iconStyles: Record<
-  string,
-  {
-    background: string;
-    text: string;
-  }
-> = {
-  blue: {
-    background: "bg-blue-50",
-    text: "text-blue-600",
-  },
-  amber: {
-    background: "bg-amber-50",
-    text: "text-amber-600",
-  },
-  teal: {
-    background: "bg-teal-50",
-    text: "text-teal-600",
-  },
-  indigo: {
-    background: "bg-indigo-50",
-    text: "text-indigo-600",
-  },
-  cyan: {
-    background: "bg-cyan-50",
-    text: "text-cyan-600",
-  },
-  green: {
-    background: "bg-green-50",
-    text: "text-green-600",
-  },
-};
-
 export default function Services() {
+  const ref = usePauseOffscreen<HTMLElement>();
+
   return (
-    <section
-      id="services"
-      className="relative overflow-hidden bg-white py-24 sm:py-28"
-    >
-      {/* Background decoration */}
-      <div className="pointer-events-none absolute -right-32 top-20 h-72 w-72 rounded-full bg-blue-50 blur-3xl" />
+    <section ref={ref} id="services" className="relative overflow-hidden bg-white py-24 sm:py-32">
+      {/* Animated blueprint of tools */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-40 -top-40 bottom-0 right-0 animate-pan opacity-[0.05] will-change-transform"
+        style={{ backgroundImage: toolsPattern, backgroundSize: "160px 160px" }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white via-white/70 to-white"
+      />
 
-      <div className="pointer-events-none absolute -left-32 bottom-20 h-72 w-72 rounded-full bg-teal-50 blur-3xl" />
-
-      <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Section heading */}
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.7 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-flex rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-600">
+          <span className="text-sm font-bold uppercase tracking-[0.2em] text-marigold-700">
             Our services
           </span>
-
-          <h2 className="mt-5 text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">
+          <h2 className="mt-4 text-4xl font-bold tracking-tight text-oxford-900 sm:text-5xl">
             Everything your home needs.
           </h2>
-
           <p className="mt-5 text-lg leading-8 text-slate-600">
-            From everyday repairs to specialist services, find trusted local
+            From a dripping tap to a full repaint, find trusted local
             professionals for the jobs that matter.
           </p>
         </motion.div>
 
-        {/* Service cards */}
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          variants={{
-            hidden: {},
-            visible: {
-              transition: {
-                staggerChildren: 0.1,
-              },
-            },
-          }}
-          className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          viewport={{ once: true, amount: 0.15 }}
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
+          className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {services.map((service) => {
-            const Icon = service.icon;
-            const style = iconStyles[service.color];
-
-            return (
-              <motion.a
-                key={service.title}
-                href="#"
-                variants={{
-                  hidden: {
-                    opacity: 0,
-                    y: 35,
-                  },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                  },
-                }}
-                whileHover={{
-                  y: -7,
-                  transition: {
-                    duration: 0.25,
-                  },
-                }}
-                className="group relative rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow duration-300 hover:border-blue-200 hover:shadow-xl hover:shadow-slate-200/70"
+          {services.map(({ title, description, icon: Icon }, index) => (
+            <motion.div
+              key={title}
+              variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <Link
+                href="/register"
+                className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/90 p-7 shadow-sm backdrop-blur transition-all duration-300 hover:-translate-y-1.5 hover:border-gold-300 hover:shadow-2xl hover:shadow-oxford-900/10"
               >
-                {/* Top row */}
-                <div className="flex items-start justify-between">
-                  <motion.div
-                    whileHover={{ scale: 1.08, rotate: 4 }}
-                    transition={{ duration: 0.2 }}
-                    className={`flex h-14 w-14 items-center justify-center rounded-2xl ${style.background}`}
-                  >
-                    <Icon size={26} className={style.text} />
-                  </motion.div>
+                {/* Big faded number in the corner */}
+                <span className="absolute -right-2 -top-4 text-8xl font-black text-slate-100 transition-colors duration-300 group-hover:text-gold-50">
+                  0{index + 1}
+                </span>
 
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition-all duration-300 group-hover:bg-blue-600 group-hover:text-white">
-                    <ArrowRight
-                      size={17}
-                      className="transition-transform duration-300 group-hover:translate-x-0.5"
-                    />
-                  </div>
-                </div>
+                <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-oxford-900 text-gold-400 shadow-lg shadow-oxford-900/20 transition-all duration-300 group-hover:rotate-6 group-hover:bg-gold-400 group-hover:text-oxford-900">
+                  <Icon size={26} />
+                </span>
 
-                {/* Content */}
-                <h3 className="mt-7 text-xl font-bold text-slate-900">
-                  {service.title}
-                </h3>
+                <h3 className="relative mt-7 text-xl font-bold text-oxford-900">{title}</h3>
+                <p className="relative mt-3 flex-1 text-sm leading-6 text-slate-600">{description}</p>
 
-                <p className="mt-3 min-h-[72px] text-sm leading-6 text-slate-500">
-                  {service.description}
-                </p>
+                <span className="relative mt-6 inline-flex items-center gap-2 text-sm font-semibold text-oxford-900">
+                  Book {title.toLowerCase()}
+                  <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
+                </span>
 
-                <div className="mt-5 flex items-center gap-2 text-sm font-semibold text-blue-600 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">
-                  Explore service
-                  <ArrowRight size={15} />
-                </div>
-              </motion.a>
-            );
-          })}
+                {/* Gold bar that grows on hover */}
+                <span className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-gold-400 to-marigold-500 transition-transform duration-500 group-hover:scale-x-100" />
+              </Link>
+            </motion.div>
+          ))}
         </motion.div>
 
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="mt-12 text-center"
+          className="mt-12 text-center text-sm text-slate-600"
         >
-          <p className="text-sm text-slate-500">
-            Can&apos;t find the service you need?
-          </p>
-
-          <a
-            href="/register"
-            className="mt-2 inline-flex items-center gap-2 font-semibold text-blue-600 transition-colors hover:text-blue-700"
-          >
+          Can&apos;t find the service you need?{" "}
+          <Link href="/register" className="font-semibold text-oxford-900 underline decoration-gold-400 decoration-2 underline-offset-4 hover:text-marigold-700">
             Tell us what you need
-            <ArrowRight size={16} />
-          </a>
-        </motion.div>
+          </Link>
+        </motion.p>
       </div>
     </section>
   );

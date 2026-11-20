@@ -1,234 +1,137 @@
 "use client";
 
-import { motion } from "motion/react";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "motion/react";
 import {
   BadgeCheck,
   CreditCard,
+  FileCheck2,
   Headphones,
+  IdCard,
   MapPin,
   ShieldCheck,
   Sparkles,
+  type LucideIcon,
 } from "lucide-react";
+import { dotGrid } from "./patterns";
 
-const benefits = [
-  {
-    icon: ShieldCheck,
-    title: "Trusted professionals",
-    description:
-      "Connect with professionals who are matched to the services they are qualified to provide.",
-    color: "blue",
-  },
-  {
-    icon: CreditCard,
-    title: "Clear pricing",
-    description:
-      "See the service price before booking, with any additional work handled transparently.",
-    color: "green",
-  },
-  {
-    icon: BadgeCheck,
-    title: "Quality-focused",
-    description:
-      "We are building ValleyFix around reliable service, clear communication and customer satisfaction.",
-    color: "violet",
-  },
-  {
-    icon: MapPin,
-    title: "Local service",
-    description:
-      "Find home services from professionals serving your local area across South Wales.",
-    color: "orange",
-  },
-  {
-    icon: Headphones,
-    title: "Support when needed",
-    description:
-      "Have a question about your booking? ValleyFix keeps support and communication in one place.",
-    color: "cyan",
-  },
-  {
-    icon: Sparkles,
-    title: "Simple experience",
-    description:
-      "From finding a service to completing the job, everything is designed to stay straightforward.",
-    color: "pink",
-  },
+const benefits: { icon: LucideIcon; title: string; description: string; tone: "oxford" | "gold" | "marigold" }[] = [
+  { icon: CreditCard, title: "Clear pricing", description: "See the service price before you book. Any extra work is agreed with you first.", tone: "gold" },
+  { icon: MapPin, title: "Genuinely local", description: "Technicians who live and work in your part of South Wales.", tone: "oxford" },
+  { icon: Headphones, title: "Support when needed", description: "Questions about a booking? Messages and updates stay in one place.", tone: "marigold" },
+  { icon: Sparkles, title: "Simple from start to finish", description: "Finding, booking and paying are designed to stay straightforward.", tone: "oxford" },
 ];
 
-const iconStyles: Record<
-  string,
-  {
-    background: string;
-    text: string;
-  }
-> = {
-  blue: {
-    background: "bg-blue-50",
-    text: "text-blue-600",
-  },
-  green: {
-    background: "bg-green-50",
-    text: "text-green-600",
-  },
-  violet: {
-    background: "bg-violet-50",
-    text: "text-violet-600",
-  },
-  orange: {
-    background: "bg-orange-50",
-    text: "text-orange-600",
-  },
-  cyan: {
-    background: "bg-cyan-50",
-    text: "text-cyan-600",
-  },
-  pink: {
-    background: "bg-pink-50",
-    text: "text-pink-600",
-  },
+const toneStyles = {
+  oxford: "bg-oxford-900 text-gold-400",
+  gold: "bg-gold-400 text-oxford-900",
+  marigold: "bg-marigold-100 text-marigold-800",
 };
 
+const checks = [
+  { icon: IdCard, label: "Photo ID checked" },
+  { icon: FileCheck2, label: "National Insurance number verified" },
+  { icon: BadgeCheck, label: "Services and areas approved by our team" },
+];
+
 export default function WhyValleyFix() {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const hillsY = useTransform(scrollYProgress, [0, 1], [80, -40]);
+
   return (
-    <section
-      id="why-valleyfix"
-      className="relative overflow-hidden bg-white py-24 sm:py-28"
-    >
-      {/* Background decoration */}
-      <div className="pointer-events-none absolute -left-40 top-20 h-96 w-96 rounded-full bg-blue-50 blur-3xl" />
+    <section ref={ref} id="why-valleyfix" className="relative overflow-hidden bg-slate-50 py-24 sm:py-32">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.18]"
+        style={{ backgroundImage: dotGrid, backgroundSize: "24px 24px" }}
+      />
 
-      <div className="pointer-events-none absolute -right-40 bottom-10 h-96 w-96 rounded-full bg-teal-50 blur-3xl" />
+      {/* Soft valley hills rising at the bottom */}
+      <motion.svg
+        aria-hidden="true"
+        style={{ y: hillsY }}
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="none"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-64 w-full"
+      >
+        <path d="M0 160 C240 80 420 150 640 170 C860 190 1060 90 1440 130 V320 H0 Z" fill="#dbe4f0" />
+        <path d="M0 230 C300 170 520 220 760 230 C1000 240 1200 180 1440 200 V320 H0 Z" fill="#f0f4f9" />
+      </motion.svg>
 
-      <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-
-        {/* Heading */}
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.7 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-flex rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-600">
+          <span className="text-sm font-bold uppercase tracking-[0.2em] text-marigold-700">
             Why ValleyFix
           </span>
-
-          <h2 className="mt-5 text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">
+          <h2 className="mt-4 text-4xl font-bold tracking-tight text-oxford-900 sm:text-5xl">
             Home services you can feel good about booking.
           </h2>
-
-          <p className="mt-5 text-lg leading-8 text-slate-600">
-            We are building ValleyFix to make finding reliable local help
-            easier, clearer and more convenient.
-          </p>
         </motion.div>
 
-        {/* Benefits */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          variants={{
-            hidden: {},
-            visible: {
-              transition: {
-                staggerChildren: 0.1,
-              },
-            },
-          }}
-          className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          {benefits.map((benefit) => {
-            const Icon = benefit.icon;
-            const style = iconStyles[benefit.color];
+        <div className="mt-16 grid gap-5 lg:grid-cols-3">
+          {/* Featured: how technicians are verified */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.7 }}
+            className="relative overflow-hidden rounded-[2rem] bg-oxford-900 p-8 text-white shadow-2xl shadow-oxford-900/20 lg:row-span-2"
+          >
+            <div aria-hidden="true" className="absolute -right-16 -top-16 h-56 w-56 animate-glow rounded-full bg-oxford-400/40 blur-3xl" />
 
-            return (
-              <motion.div
-                key={benefit.title}
-                variants={{
-                  hidden: {
-                    opacity: 0,
-                    y: 30,
-                  },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                  },
-                }}
-                whileHover={{
-                  y: -6,
-                  transition: {
-                    duration: 0.25,
-                  },
-                }}
-                className="group rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition-all duration-300 hover:border-blue-200 hover:shadow-xl hover:shadow-slate-200/60"
-              >
-                <motion.div
-                  whileHover={{
-                    scale: 1.08,
-                    rotate: 4,
-                  }}
-                  className={`flex h-14 w-14 items-center justify-center rounded-2xl ${style.background}`}
+            <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gold-400 text-oxford-900">
+              <ShieldCheck size={28} />
+            </span>
+            <h3 className="relative mt-7 text-2xl font-bold">Every technician is checked</h3>
+            <p className="relative mt-3 text-sm leading-6 text-oxford-100">
+              Before anyone can take a job on ValleyFix, our team reviews their
+              application.
+            </p>
+
+            <ul className="relative mt-8 space-y-3">
+              {checks.map(({ icon: Icon, label }, i) => (
+                <motion.li
+                  key={label}
+                  initial={{ opacity: 0, x: -16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 + i * 0.15 }}
+                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3.5"
                 >
-                  <Icon
-                    size={26}
-                    className={style.text}
-                  />
-                </motion.div>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10">
+                    <Icon size={17} className="text-gold-400" />
+                  </span>
+                  <span className="text-sm font-medium">{label}</span>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
 
-                <h3 className="mt-6 text-xl font-bold text-slate-900">
-                  {benefit.title}
-                </h3>
-
-                <p className="mt-3 text-sm leading-6 text-slate-500">
-                  {benefit.description}
-                </p>
-              </motion.div>
-            );
-          })}
-        </motion.div>
-
-        {/* Trust banner */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7 }}
-          className="mt-16 overflow-hidden rounded-3xl bg-slate-900 px-6 py-10 shadow-xl sm:px-10 sm:py-12"
-        >
-          <div className="flex flex-col items-center justify-between gap-8 text-center md:flex-row md:text-left">
-
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-blue-300">
-                Built for local communities
-              </p>
-
-              <h3 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
-                Reliable help, closer to home.
-              </h3>
-
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-                ValleyFix is designed to connect customers with local
-                professionals and make everyday home maintenance easier.
-              </p>
-            </div>
-
-            <motion.a
-              href="/register"
-              whileHover={{
-                y: -3,
-                scale: 1.02,
-              }}
-              whileTap={{
-                scale: 0.98,
-              }}
-              className="shrink-0 rounded-xl bg-white px-6 py-3 font-semibold text-slate-900 shadow-lg transition-colors hover:bg-blue-50"
+          {benefits.map(({ icon: Icon, title, description, tone }, i) => (
+            <motion.div
+              key={title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.6, delay: i * 0.08 }}
+              whileHover={{ y: -6 }}
+              className="group rounded-[2rem] border border-slate-200 bg-white/90 p-7 shadow-sm backdrop-blur transition-shadow duration-300 hover:shadow-xl hover:shadow-oxford-900/10"
             >
-              Get started
-            </motion.a>
-
-          </div>
-        </motion.div>
+              <span className={`flex h-12 w-12 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:-rotate-6 ${toneStyles[tone]}`}>
+                <Icon size={24} />
+              </span>
+              <h3 className="mt-6 text-lg font-bold text-oxford-900">{title}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );

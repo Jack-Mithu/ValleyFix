@@ -1,316 +1,193 @@
 "use client";
 
+import Link from "next/link";
+import { useState } from "react";
 import { motion } from "motion/react";
-import {
-  ArrowRight,
-  CheckCircle2,
-  MapPin,
-  Navigation,
-} from "lucide-react";
+import { ArrowRight, MapPin, Navigation } from "lucide-react";
+import Contours from "./Contours";
+import { usePauseOffscreen } from "./usePauseOffscreen";
 
+// Map positions are percentages of the 600x420 map, roughly matching real geography.
 const areas = [
-  {
-    name: "Cardiff",
-    description: "Home services across Cardiff and surrounding communities.",
-  },
-  {
-    name: "Bridgend",
-    description: "Local professionals available across the Bridgend area.",
-  },
-  {
-    name: "Swansea",
-    description: "Reliable home services for customers across Swansea.",
-  },
-  {
-    name: "Maesteg",
-    description: "Helping residents find trusted local professionals nearby.",
-  },
+  { name: "Swansea", postcode: "SA1", description: "Reliable home services across Swansea and the bay.", x: 16.7, y: 66 },
+  { name: "Maesteg", postcode: "CF34", description: "Trusted local professionals in the Llynfi valley.", x: 41.7, y: 38 },
+  { name: "Bridgend", postcode: "CF31", description: "Local technicians covering the Bridgend area.", x: 46, y: 62 },
+  { name: "Cardiff", postcode: "CF10", description: "Home services across Cardiff and nearby communities.", x: 78.3, y: 64 },
+];
+
+const toSvg = (a: { x: number; y: number }) => `${(a.x / 100) * 600} ${(a.y / 100) * 420}`;
+const [swansea, maesteg, bridgend, cardiff] = areas;
+
+const routes = [
+  `M${toSvg(swansea)} C 180 250 230 300 ${toSvg(bridgend)}`,
+  `M${toSvg(bridgend)} C 340 300 400 300 ${toSvg(cardiff)}`,
+  `M${toSvg(maesteg)} C 240 200 290 220 ${toSvg(bridgend)}`,
 ];
 
 export default function ServiceAreas() {
-  return (
-    <section
-      id="areas"
-      className="relative overflow-hidden bg-slate-50 py-24 sm:py-28"
-    >
-      {/* Decorative background */}
-      <div className="pointer-events-none absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-blue-100/50 blur-3xl" />
+  const [active, setActive] = useState<string | null>(null);
+  const mapRef = usePauseOffscreen<HTMLDivElement>();
 
-      <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Heading */}
+  return (
+    <section id="areas" className="relative overflow-hidden bg-white py-24 sm:py-32">
+      <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-gold-100/60 blur-3xl" />
+
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.7 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-blue-600 shadow-sm">
-            <MapPin size={15} />
+          <span className="text-sm font-bold uppercase tracking-[0.2em] text-marigold-700">
             Service areas
           </span>
-
-          <h2 className="mt-5 text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">
+          <h2 className="mt-4 text-4xl font-bold tracking-tight text-oxford-900 sm:text-5xl">
             Local help, where you live.
           </h2>
-
           <p className="mt-5 text-lg leading-8 text-slate-600">
-            ValleyFix is being built to connect customers with local
-            professionals across South Wales.
+            We&apos;re starting across South Wales and growing valley by valley.
           </p>
         </motion.div>
 
-        {/* Areas + map-style visual */}
-        <div className="mt-16 grid gap-8 lg:grid-cols-2 lg:items-center">
-          {/* Areas */}
-          <motion.div
+        <div className="mt-16 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          {/* Area list */}
+          <motion.ul
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.15 }}
-            variants={{
-              hidden: {},
-              visible: {
-                transition: {
-                  staggerChildren: 0.12,
-                },
-              },
-            }}
+            viewport={{ once: true, amount: 0.2 }}
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
             className="grid gap-4 sm:grid-cols-2"
           >
             {areas.map((area) => (
-              <motion.div
+              <motion.li
                 key={area.name}
-                variants={{
-                  hidden: {
-                    opacity: 0,
-                    x: -25,
-                  },
-                  visible: {
-                    opacity: 1,
-                    x: 0,
-                  },
-                }}
-                whileHover={{
-                  y: -4,
-                  transition: { duration: 0.2 },
-                }}
-                className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:border-blue-200 hover:shadow-lg"
+                variants={{ hidden: { opacity: 0, x: -30 }, visible: { opacity: 1, x: 0 } }}
+                onMouseEnter={() => setActive(area.name)}
+                onMouseLeave={() => setActive(null)}
+                className={`group cursor-default rounded-3xl border p-6 transition-all duration-300 ${
+                  active === area.name
+                    ? "-translate-y-1 border-gold-400 bg-gold-50 shadow-lg shadow-gold-500/10"
+                    : "border-slate-200 bg-white"
+                }`}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
-                    <MapPin
-                      size={22}
-                      className="text-blue-600"
-                    />
-                  </div>
-
-                  <CheckCircle2
-                    size={20}
-                    className="text-green-500"
-                  />
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`flex h-11 w-11 items-center justify-center rounded-2xl transition-colors ${
+                      active === area.name ? "bg-gold-400 text-oxford-900" : "bg-oxford-900 text-gold-400"
+                    }`}
+                  >
+                    <MapPin size={20} />
+                  </span>
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 font-mono text-xs font-semibold text-slate-600">
+                    {area.postcode}
+                  </span>
                 </div>
-
-                <h3 className="mt-5 text-xl font-bold text-slate-900">
-                  {area.name}
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-500">
-                  {area.description}
-                </p>
-
-                <div className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-blue-600">
-                  Explore services
-                  <ArrowRight
-                    size={15}
-                    className="transition-transform duration-300 group-hover:translate-x-1"
-                  />
-                </div>
-              </motion.div>
+                <h3 className="mt-5 text-xl font-bold text-oxford-900">{area.name}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{area.description}</p>
+              </motion.li>
             ))}
-          </motion.div>
+          </motion.ul>
 
-          {/* Map-style panel */}
+          {/* Animated map */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
+            ref={mapRef}
+            initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, amount: 0.2 }}
+            viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.8 }}
-            className="relative min-h-[420px] overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-200/60"
+            className="relative aspect-[10/8] overflow-hidden rounded-[2rem] bg-oxford-900 shadow-2xl shadow-oxford-900/25 sm:aspect-[10/7]"
           >
-            {/* Grid */}
-            <div
-              className="absolute inset-0 opacity-60"
-              style={{
-                backgroundImage:
-                  "linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)",
-                backgroundSize: "42px 42px",
-              }}
-            />
+            <Contours className="opacity-[0.14]" />
 
-            {/* Soft map background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-white to-teal-50/70" />
-
-            {/* Connection lines */}
-            <svg
-              className="absolute inset-0 h-full w-full"
-              viewBox="0 0 600 420"
-              fill="none"
-              preserveAspectRatio="none"
-            >
+            <svg viewBox="0 0 600 420" preserveAspectRatio="none" className="absolute inset-0 h-full w-full" aria-hidden="true">
+              {/* Bristol Channel */}
               <path
-                d="M105 105 C190 70 220 145 290 170 C355 195 395 130 490 155"
-                stroke="#bfdbfe"
-                strokeWidth="3"
-                strokeDasharray="8 8"
+                d="M0 318 C50 300 80 336 120 326 C165 315 190 290 235 306 C275 320 305 334 350 322 C410 306 440 332 490 322 C530 314 565 300 600 306 V420 H0 Z"
+                fill="#001630"
               />
-
               <path
-                d="M290 170 C260 235 330 275 405 300"
-                stroke="#99f6e4"
-                strokeWidth="3"
-                strokeDasharray="8 8"
+                d="M0 318 C50 300 80 336 120 326 C165 315 190 290 235 306 C275 320 305 334 350 322 C410 306 440 332 490 322 C530 314 565 300 600 306"
+                fill="none"
+                stroke="#ffbf00"
+                strokeOpacity="0.35"
+                strokeWidth="1.5"
+                vectorEffect="non-scaling-stroke"
               />
+              <text x="300" y="385" textAnchor="middle" fill="#5b7fb2" fontSize="12" letterSpacing="4">
+                BRISTOL CHANNEL
+              </text>
+
+              {/* Routes between towns */}
+              {routes.map((d, i) => (
+                <path
+                  key={i}
+                  d={d}
+                  fill="none"
+                  stroke="#ffbf00"
+                  strokeWidth="2"
+                  strokeDasharray="6 10"
+                  strokeLinecap="round"
+                  vectorEffect="non-scaling-stroke"
+                  className="animate-road"
+                  style={{ animationDuration: `${2 + i * 0.4}s` }}
+                />
+              ))}
             </svg>
 
-            {/* Cardiff */}
-            <motion.div
-              animate={{
-                y: [0, -6, 0],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="absolute left-[16%] top-[22%]"
-            >
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30">
-                  <MapPin size={21} />
-                </div>
-
-                <div className="absolute left-1/2 top-14 -translate-x-1/2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 shadow-md">
-                  Cardiff
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Bridgend */}
-            <motion.div
-              animate={{
-                y: [0, -5, 0],
-              }}
-              transition={{
-                duration: 3.4,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.3,
-              }}
-              className="absolute left-[43%] top-[38%]"
-            >
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-600 text-white shadow-lg shadow-teal-600/30">
-                  <MapPin size={21} />
-                </div>
-
-                <div className="absolute left-1/2 top-14 -translate-x-1/2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 shadow-md">
-                  Bridgend
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Swansea */}
-            <motion.div
-              animate={{
-                y: [0, -6, 0],
-              }}
-              transition={{
-                duration: 3.2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.6,
-              }}
-              className="absolute left-[14%] top-[57%]"
-            >
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">
-                  <MapPin size={21} />
-                </div>
-
-                <div className="absolute left-1/2 top-14 -translate-x-1/2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 shadow-md">
-                  Swansea
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Maesteg */}
-            <motion.div
-              animate={{
-                y: [0, -5, 0],
-              }}
-              transition={{
-                duration: 3.6,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.9,
-              }}
-              className="absolute left-[62%] top-[65%]"
-            >
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white shadow-lg shadow-orange-500/30">
-                  <MapPin size={21} />
-                </div>
-
-                <div className="absolute left-1/2 top-14 -translate-x-1/2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 shadow-md">
-                  Maesteg
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Center information card */}
-            <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/80 bg-white/90 p-4 shadow-lg backdrop-blur-md">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50">
-                  <Navigation
-                    size={19}
-                    className="text-blue-600"
+            {/* Pins */}
+            {areas.map((area, i) => {
+              const isActive = active === area.name;
+              return (
+                <div
+                  key={area.name}
+                  className="absolute -translate-x-1/2 -translate-y-1/2"
+                  style={{ left: `${area.x}%`, top: `${area.y}%` }}
+                >
+                  <span
+                    className="absolute inset-0 m-auto h-10 w-10 animate-pulse-ring rounded-full bg-gold-400/40"
+                    style={{ animationDelay: `${i * 0.5}s` }}
                   />
+                  <motion.span
+                    animate={{ scale: isActive ? 1.25 : 1 }}
+                    className={`relative flex h-10 w-10 items-center justify-center rounded-full border-2 shadow-lg transition-colors ${
+                      isActive
+                        ? "border-white bg-gold-400 text-oxford-900"
+                        : "border-gold-400 bg-oxford-800 text-gold-400"
+                    }`}
+                  >
+                    <MapPin size={18} />
+                  </motion.span>
+                  <span
+                    className={`absolute left-1/2 top-12 -translate-x-1/2 whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-bold shadow-md transition-colors ${
+                      isActive ? "bg-gold-400 text-oxford-900" : "bg-white text-oxford-900"
+                    }`}
+                  >
+                    {area.name}
+                  </span>
                 </div>
+              );
+            })}
 
-                <div>
-                  <p className="text-sm font-bold text-slate-900">
-                    Expanding locally
-                  </p>
-
-                  <p className="mt-0.5 text-xs text-slate-500">
-                    More areas can be added as ValleyFix grows.
-                  </p>
-                </div>
+            <div className="absolute left-4 right-4 top-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 p-3 backdrop-blur-md sm:left-5 sm:right-auto">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gold-400 text-oxford-900">
+                <Navigation size={17} />
+              </span>
+              <div>
+                <p className="text-sm font-bold text-white">Expanding across the valleys</p>
+                <p className="text-xs text-oxford-200">More areas are added as ValleyFix grows.</p>
               </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7 }}
-          className="mt-12 text-center"
-        >
-          <p className="text-sm text-slate-500">
-            Don&apos;t see your area?
-          </p>
-
-          <a
-            href="/register"
-            className="mt-2 inline-flex items-center gap-2 font-semibold text-blue-600 transition-colors hover:text-blue-700"
-          >
-            Join ValleyFix and let us know
-            <ArrowRight size={16} />
-          </a>
-        </motion.div>
+        <p className="mt-12 text-center text-sm text-slate-600">
+          Don&apos;t see your area?{" "}
+          <Link href="/register" className="inline-flex items-center gap-1 font-semibold text-oxford-900 underline decoration-gold-400 decoration-2 underline-offset-4 hover:text-marigold-700">
+            Join and let us know <ArrowRight size={14} />
+          </Link>
+        </p>
       </div>
     </section>
   );

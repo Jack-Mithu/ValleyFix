@@ -14,7 +14,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "seed": "tsx src/prisma/seed.ts",
+    "seed": "tsx prisma/seed.ts",
     "lint": "oxlint src/ test/",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -1,13 +1,20 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './jwt.strategy.js';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
+import { UploadsModule } from '../uploads/uploads.module.js';
 
 @Module({
   imports: [
     PrismaModule,
+    UploadsModule,
+    // register() is required: it provides the options JwtAuthGuard depends on.
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -27,6 +34,8 @@ import { PrismaModule } from '../prisma/prisma.module.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
+  // Lets other feature modules (bookings, jobs...) use JwtAuthGuard.
+  exports: [PassportModule],
 })
 export class AuthModule {}

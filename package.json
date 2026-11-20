@@ -1,6 +1,12 @@
 {
-  "dependencies": {
-    "@nestjs/cli": "^12.0.0",
-    "g": "^2.0.1"
+  "name": "valleyfix",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm run start:dev --prefix backend\" \"npm run dev --prefix web\"",
+    "dev:api": "npm run start:dev --prefix backend",
+    "dev:web": "npm run dev --prefix web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.5"
   }
 }

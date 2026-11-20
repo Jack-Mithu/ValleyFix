@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { motion } from "motion/react";
 import {
@@ -29,7 +30,7 @@ export default function RegisterPage() {
       {/* Header */}
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8">
-          <a href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold text-white shadow-lg shadow-blue-600/20">
               V
             </div>
@@ -37,16 +38,16 @@ export default function RegisterPage() {
             <span className="text-2xl font-bold tracking-tight text-slate-900">
               Valley<span className="text-blue-600">Fix</span>
             </span>
-          </a>
+          </Link>
 
           <p className="hidden text-sm text-slate-500 sm:block">
             Already have an account?{" "}
-            <a
+            <Link
               href="/login"
               className="font-semibold text-blue-600 transition hover:text-blue-700"
             >
               Sign in
-            </a>
+            </Link>
           </p>
         </div>
       </header>
@@ -71,7 +72,7 @@ export default function RegisterPage() {
             </div>
 
             <h1 className="text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
-              Let's get you
+              Let&apos;s get you
               <span className="block text-blue-600">
                 started.
               </span>
@@ -79,7 +80,7 @@ export default function RegisterPage() {
 
             <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
               Whether you need a helping hand at home or want to offer your
-              professional services, there's a place for you at ValleyFix.
+              professional services, there&apos;s a place for you at ValleyFix.
             </p>
           </motion.div>
 
@@ -128,13 +129,13 @@ export default function RegisterPage() {
               </div>
 
               <div className="mt-auto pt-9">
-                <a
+                <Link
                   href="/register/customer"
                   className="flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-4 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
                 >
                   Create customer account
                   <ArrowRight size={18} />
-                </a>
+                </Link>
 
                 <p className="mt-3 text-center text-xs text-slate-500">
                   Register and start using ValleyFix.
@@ -185,13 +186,13 @@ export default function RegisterPage() {
               </div>
 
               <div className="mt-auto pt-9">
-                <a
+                <Link
                   href="/register/technician"
                   className="flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-teal-700 px-5 py-4 text-sm font-bold text-white shadow-lg shadow-teal-700/20 transition hover:bg-teal-800"
                 >
                   Apply as a technician
                   <ArrowRight size={18} />
-                </a>
+                </Link>
 
                 <p className="mt-3 text-center text-xs text-slate-500">
                   Your application will be reviewed by our team.
@@ -221,12 +222,12 @@ export default function RegisterPage() {
           {/* Mobile sign in */}
           <p className="mt-10 text-center text-sm text-slate-500 sm:hidden">
             Already have an account?{" "}
-            <a
+            <Link
               href="/login"
               className="font-semibold text-blue-600 hover:text-blue-700"
             >
               Sign in
-            </a>
+            </Link>
           </p>
         </div>
       </section>
@@ -238,12 +239,12 @@ export default function RegisterPage() {
             © {new Date().getFullYear()} ValleyFix. All rights reserved.
           </p>
 
-          <a
+          <Link
             href="/"
             className="font-medium transition hover:text-blue-600"
           >
             Back to home
-          </a>
+          </Link>
         </div>
       </footer>
     </main>

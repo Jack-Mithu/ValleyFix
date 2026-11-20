@@ -300,7 +300,7 @@ export default function ServiceAreas() {
           className="mt-12 text-center"
         >
           <p className="text-sm text-slate-500">
-            Don't see your area?
+            Don&apos;t see your area?
           </p>
 
           <a

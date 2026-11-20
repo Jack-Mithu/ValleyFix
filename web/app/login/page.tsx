@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,7 @@ import {
   LockKeyhole,
   Mail,
 } from "lucide-react";
+import { homePathForRole } from "@/app/lib/session";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,9 +32,10 @@ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
-
-    const response = await fetch(`${apiUrl}/auth/login`, {
+    // Call our own Next.js route (same origin), NOT the backend directly.
+    // That route talks to NestJS and stores the token in an httpOnly cookie,
+    // so browser JavaScript never sees the token.
+    const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -51,25 +54,14 @@ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
       return;
     }
 
-    switch (data.user?.role) {
-      case "customer":
-        router.push("/dashboard");
-        break;
+    const homePath = homePathForRole(data.user?.role ?? "");
 
-      case "technician":
-        router.push("/technician/dashboard");
-        break;
-
-      case "admin":
-      case "super_admin":
-        router.push("/admin");
-        break;
-
-      default:
-        setError("Your account has an unrecognised role.");
-        return;
+    if (!homePath) {
+      setError("Your account has an unrecognised role.");
+      return;
     }
 
+    router.push(homePath);
     router.refresh();
   } catch {
     setError("Unable to connect to ValleyFix. Please try again.");
@@ -90,7 +82,7 @@ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
           <div className="relative z-10 flex w-full flex-col justify-between p-12 xl:p-16">
 
             {/* Logo */}
-            <a href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 font-bold text-white">
                 V
               </div>
@@ -98,7 +90,7 @@ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
               <span className="text-2xl font-bold text-white">
                 Valley<span className="text-blue-400">Fix</span>
               </span>
-            </a>
+            </Link>
 
             {/* Message */}
             <div className="max-w-lg">
@@ -153,7 +145,7 @@ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
             className="w-full max-w-md"
           >
             {/* Mobile logo */}
-            <a
+            <Link
               href="/"
               className="mb-10 flex items-center justify-center gap-2 lg:hidden"
             >
@@ -164,7 +156,7 @@ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
               <span className="text-2xl font-bold text-slate-900">
                 Valley<span className="text-blue-600">Fix</span>
               </span>
-            </a>
+            </Link>
 
             <div className="text-center lg:text-left">
               <h2 className="text-3xl font-bold tracking-tight text-slate-950">
@@ -222,12 +214,12 @@ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
                     Password
                   </label>
 
-                  <a
+                  <Link
                     href="#"
                     className="text-xs font-semibold text-blue-600 hover:text-blue-700"
                   >
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
 
                 <div className="relative">
@@ -298,12 +290,12 @@ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
               <div className="h-px flex-1 bg-slate-200" />
             </div>
 
-            <a
+            <Link
               href="/register"
               className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-all hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
             >
               Create an account
-            </a>
+            </Link>
           </motion.div>
         </div>
       </div>

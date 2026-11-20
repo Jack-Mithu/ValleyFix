@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getBackendUrl } from '@/app/lib/auth';
+import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS } from '@/app/lib/session';
 
+// "Backend for frontend": the browser posts here, we forward to NestJS,
+// then keep the JWT in an httpOnly cookie the browser can't read with JS.
 export async function POST(request: NextRequest) {
   try {
-    const backendUrl = process.env.BACKEND_API_URL;
-
-    if (!backendUrl) {
-      return NextResponse.json(
-        { message: 'Backend URL is not configured.' },
-        { status: 500 },
-      );
-    }
-
-    const body: unknown = await request.json();
+    const body: unknown = await request.json().catch(() => null);
 
     if (
       typeof body !== 'object' ||
@@ -29,10 +24,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const email = body.email.trim();
+    const email = body.email.trim().toLowerCase();
     const password = body.password;
 
-    const backendResponse = await fetch(`${backendUrl}/auth/login`, {
+    const backendResponse = await fetch(`${getBackendUrl()}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -41,7 +36,7 @@ export async function POST(request: NextRequest) {
       cache: 'no-store',
     });
 
-    const data = await backendResponse.json();
+    const data = await backendResponse.json().catch(() => ({}));
 
     if (!backendResponse.ok) {
       const message = Array.isArray(data.message)
@@ -63,17 +58,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Only the user goes back to the browser, never the token.
     const response = NextResponse.json({
       message: 'Login successful',
       user: data.user,
     });
 
-    response.cookies.set('valleyfix_access_token', data.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+    response.cookies.set(SESSION_COOKIE, data.accessToken, {
+      httpOnly: true, // JavaScript (and XSS) can't read it
+      secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
+      sameSite: 'lax', // not sent on cross-site POSTs (CSRF protection)
       path: '/',
-      maxAge: 60 * 60 * 24,
+      maxAge: SESSION_MAX_AGE_SECONDS,
     });
 
     return response;

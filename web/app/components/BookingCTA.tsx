@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { motion } from "motion/react";
 import {
@@ -47,7 +48,7 @@ export default function Footer() {
         <div className="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
           {/* Brand */}
           <div>
-            <a href="/" className="inline-flex items-center gap-2">
+            <Link href="/" className="inline-flex items-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-600/20">
                 V
               </div>
@@ -55,7 +56,7 @@ export default function Footer() {
               <span className="text-2xl font-bold tracking-tight">
                 Valley<span className="text-blue-400">Fix</span>
               </span>
-            </a>
+            </Link>
 
             <p className="mt-5 max-w-sm text-sm leading-6 text-slate-400">
               A local home-services platform connecting customers with

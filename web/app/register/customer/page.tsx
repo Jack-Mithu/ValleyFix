@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { FormEvent, useState } from "react";
 import { motion } from "motion/react";
@@ -106,7 +107,10 @@ export default function CustomerRegistrationPage() {
         const message = Array.isArray(data.message)
           ? data.message.join(" ")
           : data.message;
-        throw new Error(message || "Registration failed. Please check your details.");
+        throw new Error(
+          message ||
+            `Registration failed (status ${response.status}). Please try again.`,
+        );
       }
 
       setSuccess(true);
@@ -148,12 +152,12 @@ export default function CustomerRegistrationPage() {
             in and arrange home services when they become available.
           </p>
 
-          <a
+          <Link
             href="/login"
             className="mt-8 inline-flex rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
           >
             Continue to sign in
-          </a>
+          </Link>
         </motion.div>
       </main>
     );
@@ -164,7 +168,7 @@ export default function CustomerRegistrationPage() {
       {/* Header */}
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8">
-          <a href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold text-white">
               V
             </div>
@@ -172,16 +176,16 @@ export default function CustomerRegistrationPage() {
             <span className="text-2xl font-bold text-slate-900">
               Valley<span className="text-blue-600">Fix</span>
             </span>
-          </a>
+          </Link>
 
           <p className="hidden text-sm text-slate-500 sm:block">
             Already registered?{" "}
-            <a
+            <Link
               href="/login"
               className="font-semibold text-blue-600 hover:text-blue-700"
             >
               Sign in
-            </a>
+            </Link>
           </p>
         </div>
       </header>
@@ -194,13 +198,13 @@ export default function CustomerRegistrationPage() {
           className="mx-auto max-w-3xl"
         >
           {/* Back navigation */}
-          <a
+          <Link
             href="/register"
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-blue-600"
           >
             <ArrowLeft size={17} />
             Back to account types
-          </a>
+          </Link>
 
           {/* Introduction */}
           <div className="mt-7">
@@ -619,12 +623,12 @@ export default function CustomerRegistrationPage() {
           {/* Sign in */}
           <p className="mt-8 text-center text-sm text-slate-500">
             Already have an account?{" "}
-            <a
+            <Link
               href="/login"
               className="font-semibold text-blue-600 hover:text-blue-700"
             >
               Sign in
-            </a>
+            </Link>
           </p>
         </motion.div>
       </section>

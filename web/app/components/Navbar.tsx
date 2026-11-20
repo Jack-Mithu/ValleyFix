@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { motion } from "motion/react";
 import { Menu, X } from "lucide-react";
@@ -18,7 +19,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between">
 
           {/* Logo */}
-          <a href="/" className="group flex items-center gap-2">
+          <Link href="/" className="group flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-md shadow-blue-600/20 transition-transform duration-300 group-hover:rotate-6">
               V
             </div>
@@ -26,7 +27,7 @@ export default function Navbar() {
             <span className="text-xl font-bold tracking-tight text-slate-900">
               Valley<span className="text-blue-600">Fix</span>
             </span>
-          </a>
+          </Link>
 
           {/* Desktop navigation */}
           <div className="hidden items-center gap-8 md:flex">

@@ -6,7 +6,6 @@ import {
   Bath,
   Brush,
   Droplets,
-  Home,
   Lightbulb,
   Snowflake,
   Wrench,
@@ -204,7 +203,7 @@ export default function Services() {
           className="mt-12 text-center"
         >
           <p className="text-sm text-slate-500">
-            Can't find the service you need?
+            Can&apos;t find the service you need?
           </p>
 
           <a

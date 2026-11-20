@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { FormEvent, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -103,7 +104,8 @@ const initialFormData: TechnicianFormData = {
 };
 
 // Temporary UI options.
-// Replace these with records retrieved from the ValleyFix API later.
+// These names must match the seeded data in backend/prisma/seed.ts.
+// Replace them with records retrieved from the ValleyFix API later.
 const availableServices = [
   "Plumbing",
   "Electrical work",
@@ -299,14 +301,67 @@ export default function TechnicianRegistrationPage() {
     setError("");
 
     try {
-      // Frontend-only demonstration.
-      // We will connect this application to NestJS later.
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+
+      if (!apiBaseUrl) {
+        throw new Error("The API URL is not configured. Please contact support.");
+      }
+
+      if (!formData.idProof || !formData.profilePicture) {
+        throw new Error("Please upload your identity proof and profile picture.");
+      }
+
+      // Files can't be sent as JSON, so this is multipart/form-data.
+      // Lists and objects travel as JSON strings; the backend parses them.
+      // (Don't set Content-Type yourself: the browser adds the boundary.)
+      const body = new FormData();
+      body.append("firstName", formData.firstName.trim());
+      body.append("lastName", formData.lastName.trim());
+      body.append("email", formData.email.trim().toLowerCase());
+      body.append("phone", formData.phone.trim());
+      body.append("password", formData.password);
+      body.append("bio", formData.bio.trim());
+      body.append("niNumber", formData.niNumber.trim().toUpperCase());
+      body.append("addressLine1", formData.addressLine1.trim());
+      if (formData.addressLine2.trim()) {
+        body.append("addressLine2", formData.addressLine2.trim());
+      }
+      body.append("city", formData.city.trim());
+      body.append("postcode", formData.postcode.trim().toUpperCase());
+      body.append("country", formData.country.trim());
+      body.append("services", JSON.stringify(formData.services));
+      body.append("serviceAreas", JSON.stringify(formData.serviceAreas));
+      body.append("availability", JSON.stringify(formData.availability));
+      body.append("idProof", formData.idProof);
+      body.append("profilePicture", formData.profilePicture);
+
+      const response = await fetch(`${apiBaseUrl}/auth/register/technician`, {
+        method: "POST",
+        body,
+      });
+
+      const data: { message?: string | string[] } = await response
+        .json()
+        .catch(() => ({}));
+
+      if (!response.ok) {
+        const message = Array.isArray(data.message)
+          ? data.message.join(" ")
+          : data.message;
+        throw new Error(
+          message ||
+            `Unable to submit your application (status ${response.status}).`,
+        );
+      }
 
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch {
-      setError("Unable to submit your application. Please try again.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to submit your application. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -356,13 +411,13 @@ export default function TechnicianRegistrationPage() {
             </div>
           </div>
 
-          <a
+          <Link
             href="/"
             className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-blue-700"
           >
             Return home
             <ArrowRight size={18} />
-          </a>
+          </Link>
         </motion.div>
       </main>
     );
@@ -373,7 +428,7 @@ export default function TechnicianRegistrationPage() {
       {/* Header */}
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
-          <a href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold text-white">
               V
             </div>
@@ -381,26 +436,26 @@ export default function TechnicianRegistrationPage() {
             <span className="text-2xl font-bold text-slate-900">
               Valley<span className="text-blue-600">Fix</span>
             </span>
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="/login"
             className="text-sm font-semibold text-blue-600 hover:text-blue-700"
           >
             Sign in
-          </a>
+          </Link>
         </div>
       </header>
 
       <section className="px-4 py-8 sm:px-6 sm:py-12">
         <div className="mx-auto max-w-4xl">
-          <a
+          <Link
             href="/register"
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-blue-600"
           >
             <ArrowLeft size={17} />
             Back to account types
-          </a>
+          </Link>
 
           <div className="mt-7">
             <div className="inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1.5 text-sm font-semibold text-teal-800">

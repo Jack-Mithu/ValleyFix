@@ -2,7 +2,7 @@ import { apiFetch } from "@/app/lib/admin-api";
 import { getBackendUrl } from "@/app/lib/auth";
 import type { CatalogService, CustomerAddress } from "@/app/lib/bookings";
 import BookingWizard from "./wizard";
-import PageHeader from "../page-header";
+import PageHeader from "@/app/components/page-header";
 
 const BOOKABLE_DAYS = 14; // shown in the date picker (the backend allows up to 30)
 
@@ -32,7 +32,7 @@ export default async function BookPage({ searchParams }: { searchParams: Promise
     <>
       <PageHeader
         title="Book a service"
-        description="Choose what you need and a time that suits you. You'll get a confirmed, verified technician."
+        description="Choose what you need and a time that suits you. A verified local technician will accept your request."
       />
       <BookingWizard
         services={services}

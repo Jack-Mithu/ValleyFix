@@ -19,7 +19,7 @@ export type Booking = {
   technician: { id?: number; userId?: number; name: string } | null;
   customer?: { name: string; phone: string | null };
   /** Decided by the backend for the current viewer. */
-  allowedActions: { cancel: boolean; start: boolean; complete: boolean };
+  allowedActions: { accept: boolean; cancel: boolean; start: boolean; complete: boolean };
 };
 
 export type CatalogService = {
@@ -47,7 +47,7 @@ export type Slot = { time: string; start: string; end: string };
 export const ACTIVE_STATUSES: BookingStatus[] = ["PENDING", "CONFIRMED", "IN_PROGRESS"];
 
 export const statusLabel: Record<BookingStatus, string> = {
-  PENDING: "Pending",
+  PENDING: "Awaiting technician",
   CONFIRMED: "Confirmed",
   IN_PROGRESS: "In progress",
   COMPLETED: "Completed",

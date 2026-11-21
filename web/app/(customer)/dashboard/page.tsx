@@ -5,7 +5,7 @@ import { apiFetch } from "@/app/lib/admin-api";
 import { ACTIVE_STATUSES, type Booking } from "@/app/lib/bookings";
 import BookingCard from "@/app/bookings/booking-card";
 import { cancelBookingAction } from "@/app/bookings/actions";
-import PageHeader from "../page-header";
+import PageHeader from "@/app/components/page-header";
 
 // Bookings: the customer's home page. (The layout already checked the role.)
 export default async function BookingsPage({ searchParams }: { searchParams: Promise<{ booked?: string }> }) {
@@ -32,8 +32,8 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
         <p className="mb-6 flex items-start gap-3 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
           <PartyPopper size={20} className="shrink-0" />
           <span>
-            <strong>You&apos;re booked!</strong> Your reference is <span className="font-mono">{booked}</span>. Your
-            technician will arrive at the time shown below.
+            <strong>Request sent!</strong> Your reference is <span className="font-mono">{booked}</span>. We&apos;ve
+            shared it with technicians in your area, and you&apos;ll see who accepted it here.
           </span>
         </p>
       )}

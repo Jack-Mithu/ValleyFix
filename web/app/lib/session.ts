@@ -31,7 +31,7 @@ export function homePathForRole(role: string): string | null {
     case "customer":
       return "/dashboard";
     case "technician":
-      return "/technician/dashboard";
+      return "/technician/requests";
     case "admin":
     case "super_admin":
       return "/admin";

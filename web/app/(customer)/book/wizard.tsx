@@ -317,8 +317,8 @@ export default function BookingWizard({
 
             <div className="mt-5 rounded-2xl bg-oxford-50 p-4 text-sm text-oxford-900">
               <p>
-                Estimated price <strong>from {formatPrice(service.basePrice)}</strong>. Your technician confirms the final
-                price before any extra work. No payment is taken now.
+                Estimated price <strong>from {formatPrice(service.basePrice)}</strong>. Verified technicians in your area
+                will see your request, and the first to accept confirms your booking. No payment is taken now.
               </p>
             </div>
 
@@ -333,7 +333,7 @@ export default function BookingWizard({
                 className="inline-flex items-center gap-2 rounded-xl bg-gold-400 px-6 py-3 text-sm font-bold text-oxford-900 shadow-lg shadow-gold-500/25 hover:bg-marigold-400 disabled:opacity-60"
               >
                 {submitting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-                Confirm booking
+                Send booking request
               </button>
             </div>
           </section>

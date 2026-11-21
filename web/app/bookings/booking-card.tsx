@@ -67,7 +67,7 @@ export default function BookingCard({
         {view !== "technician" && (
           <div className="flex items-center gap-2">
             <UserRound size={16} className="shrink-0 text-marigold-600" />
-            <dd>{b.technician ? `Technician: ${b.technician.name}` : "Finding a technician…"}</dd>
+            <dd>{b.technician ? `Technician: ${b.technician.name}` : "Waiting for a technician to accept"}</dd>
           </div>
         )}
 

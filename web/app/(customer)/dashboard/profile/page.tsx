@@ -3,7 +3,7 @@ import { AlertTriangle, KeyRound, Lock, MapPin, Plus, Star } from "lucide-react"
 import { ActionForm, SubmitButton } from "@/app/components/action-form";
 import { apiFetch } from "@/app/lib/admin-api";
 import { formatAddress, type CustomerProfile } from "@/app/lib/bookings";
-import PageHeader from "../../page-header";
+import PageHeader from "@/app/components/page-header";
 import { addAddressAction, makeDefaultAddressAction, updateAddressAction, updateProfileAction } from "./actions";
 
 const input =

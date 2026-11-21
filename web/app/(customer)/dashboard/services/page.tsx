@@ -10,7 +10,7 @@ import {
   type CustomerProfile,
   type PublicTechnician,
 } from "@/app/lib/bookings";
-import PageHeader from "../../page-header";
+import PageHeader from "@/app/components/page-header";
 
 export default async function ServicesPage() {
   const backend = getBackendUrl();

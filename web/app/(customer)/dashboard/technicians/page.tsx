@@ -3,7 +3,7 @@ import { BadgeCheck, CalendarPlus, Info, MapPin } from "lucide-react";
 import { apiFetch } from "@/app/lib/admin-api";
 import { getBackendUrl } from "@/app/lib/auth";
 import { fetchCatalog, type CatalogService, type CustomerProfile, type PublicTechnician } from "@/app/lib/bookings";
-import PageHeader from "../../page-header";
+import PageHeader from "@/app/components/page-header";
 
 export default async function TechniciansPage({
   searchParams,

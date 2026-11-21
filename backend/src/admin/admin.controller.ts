@@ -20,8 +20,10 @@ import { ADMIN_ROLES, Role, Roles } from '../auth/roles.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import type { AuthenticatedUser } from '../auth/jwt.strategy.js';
 import { AdminService } from './admin.service.js';
+import { BookingsService } from '../bookings/bookings.service.js';
 import {
   CreateSubAdminDto,
+  ListBookingsQueryDto,
   ListTechniciansQueryDto,
   ListUsersQueryDto,
   RejectTechnicianDto,
@@ -34,7 +36,17 @@ import {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(...ADMIN_ROLES)
 export class AdminController {
-  constructor(private readonly admin: AdminService) {}
+  constructor(
+    private readonly admin: AdminService,
+    private readonly bookings: BookingsService,
+  ) {}
+
+  // ----- Bookings: every booking, any status -----
+
+  @Get('bookings')
+  listBookings(@CurrentUser() actor: AuthenticatedUser, @Query() query: ListBookingsQueryDto) {
+    return this.bookings.adminList(actor, query.status, query.page);
+  }
 
   @Get('overview')
   overview(@CurrentUser() actor: AuthenticatedUser) {

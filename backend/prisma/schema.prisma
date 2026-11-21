@@ -304,11 +304,14 @@ model Booking {
   serviceId           Int
   addressId           Int
   technicianProfileId Int?
-  status              String   @default("pending") // pending, confirmed, completed, cancelled
+  status              BookingStatus @default(PENDING)
   scheduledStart      DateTime
   scheduledEnd        DateTime
 
   description String?
+
+  cancelledAt        DateTime? @map("cancelled_at")
+  cancellationReason String?   @map("cancellation_reason")
 
   estimatedPrice Decimal @default(0)
   depositPaid    Decimal @default(0)
@@ -336,15 +339,32 @@ model Booking {
   @@index([status])
   @@index([createdAt])
   @@index([technicianProfileId])
+  // Speeds up "is this technician already busy at that time?"
+  @@index([technicianProfileId, scheduledStart])
   @@map("bookings")
+}
+
+//--------BOOKING STATUS------//
+// PENDING     created, no technician yet (not used while bookings auto-assign)
+// CONFIRMED   a technician is assigned and the time is reserved
+// IN_PROGRESS the technician has started the job
+// COMPLETED   the job is done
+// CANCELLED   cancelled by the customer or an admin
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
 }
 
 //--------BOOKING STATUS HISTORY------//
 model BookingStatusHistory {
   id          Int    @id @default(autoincrement())
   bookingId   Int
-  status      String // pending, confirmed, completed, cancelled
+  status      BookingStatus
   changedById Int? // User ID of the person who changed the status
+  note        String? // e.g. the cancellation reason
 
   createdAt DateTime @default(now())
 

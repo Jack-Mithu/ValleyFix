@@ -44,6 +44,19 @@ export class ListUsersQueryDto {
   pageSize?: number;
 }
 
+// GET /admin/bookings?status=&page=
+export class ListBookingsQueryDto {
+  @IsOptional()
+  @IsIn(['PENDING', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'])
+  status?: 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
+}
+
 // GET /admin/technicians?status=
 export class ListTechniciansQueryDto {
   @IsOptional()

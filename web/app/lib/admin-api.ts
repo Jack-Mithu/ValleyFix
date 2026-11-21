@@ -1,5 +1,6 @@
-// Server-only helper for calling the NestJS /admin API with the logged-in
-// user's token (read from the httpOnly cookie, never exposed to the browser).
+// Server-only helper for calling the NestJS API with the logged-in user's
+// token (read from the httpOnly cookie, never exposed to the browser).
+// Used by the admin, customer and technician pages.
 import { cookies } from "next/headers";
 import { getBackendUrl } from "./auth";
 import { SESSION_COOKIE } from "./session";
@@ -40,6 +41,9 @@ export async function adminFetch<T>(path: string, init: RequestInit = {}): Promi
 
   return data as T;
 }
+
+/** Same helper, neutral name for non-admin pages. */
+export const apiFetch = adminFetch;
 
 // ----- Response types (mirror backend/src/admin/admin.service.ts) -----
 

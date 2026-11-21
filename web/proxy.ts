@@ -11,7 +11,10 @@ export function proxy(request: NextRequest) {
   const hasSession = request.cookies.has(SESSION_COOKIE);
 
   if (!hasSession) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    // Remember where they were going, so login can send them back there.
+    const login = new URL("/login", request.url);
+    login.searchParams.set("next", request.nextUrl.pathname + request.nextUrl.search);
+    return NextResponse.redirect(login);
   }
 
   return NextResponse.next();
@@ -19,5 +22,5 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Only run on areas that need a logged-in user.
-  matcher: ["/dashboard/:path*", "/technician/:path*", "/admin/:path*", "/account/:path*"],
+  matcher: ["/dashboard/:path*", "/technician/:path*", "/admin/:path*", "/account/:path*", "/book"],
 };

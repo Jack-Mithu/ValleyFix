@@ -4,24 +4,26 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import {
   ArrowRight,
-  Bath,
   Brush,
   Droplets,
-  Flame,
+  Flower2,
   Lightbulb,
+  PaintRoller,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
 import { toolsPattern } from "./patterns";
 import { usePauseOffscreen } from "./usePauseOffscreen";
 
-const services: { title: string; description: string; icon: LucideIcon }[] = [
-  { title: "Plumbing", description: "Leaks, taps, toilets, pipes and everyday plumbing repairs.", icon: Droplets },
-  { title: "Electrical", description: "Safe help with electrical repairs, fixtures and installations.", icon: Lightbulb },
-  { title: "Cleaning", description: "Professional cleaning for homes, move-outs and rental properties.", icon: Brush },
-  { title: "Heating", description: "Boiler checks, radiator issues and keeping your home warm.", icon: Flame },
-  { title: "Bathroom", description: "Repairs, sealing, fittings and small bathroom improvements.", icon: Bath },
-  { title: "Handyman", description: "Repairs, assembly, hanging and general home maintenance.", icon: Wrench },
+// `slug` must match a service in the catalogue (backend/prisma/seed.ts) so
+// "Book ..." opens the booking page with that service already chosen.
+const services: { title: string; slug: string; description: string; icon: LucideIcon }[] = [
+  { title: "Plumbing", slug: "plumbing", description: "Leaks, taps, toilets, pipes and everyday plumbing repairs.", icon: Droplets },
+  { title: "Electrical", slug: "electrical-work", description: "Safe help with electrical repairs, fixtures and installations.", icon: Lightbulb },
+  { title: "Cleaning", slug: "cleaning", description: "Professional cleaning for homes, move-outs and rental properties.", icon: Brush },
+  { title: "Gardening", slug: "gardening", description: "Lawns, hedges, weeding and keeping your garden tidy.", icon: Flower2 },
+  { title: "Painting & decorating", slug: "painting-and-decorating", description: "Walls, ceilings, woodwork and fresh coats of paint.", icon: PaintRoller },
+  { title: "Handyman", slug: "handyman-services", description: "Repairs, assembly, hanging and general home maintenance.", icon: Wrench },
 ];
 
 export default function Services() {
@@ -67,14 +69,14 @@ export default function Services() {
           variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
           className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {services.map(({ title, description, icon: Icon }, index) => (
+          {services.map(({ title, slug, description, icon: Icon }, index) => (
             <motion.div
               key={title}
               variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0 } }}
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
               <Link
-                href="/register"
+                href={`/book?service=${slug}`}
                 className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/90 p-7 shadow-sm backdrop-blur transition-all duration-300 hover:-translate-y-1.5 hover:border-gold-300 hover:shadow-2xl hover:shadow-oxford-900/10"
               >
                 {/* Big faded number in the corner */}
@@ -109,7 +111,7 @@ export default function Services() {
           className="mt-12 text-center text-sm text-slate-600"
         >
           Can&apos;t find the service you need?{" "}
-          <Link href="/register" className="font-semibold text-oxford-900 underline decoration-gold-400 decoration-2 underline-offset-4 hover:text-marigold-700">
+          <Link href="/book" className="font-semibold text-oxford-900 underline decoration-gold-400 decoration-2 underline-offset-4 hover:text-marigold-700">
             Tell us what you need
           </Link>
         </motion.p>

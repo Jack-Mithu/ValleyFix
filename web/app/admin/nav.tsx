@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { History, LayoutDashboard, ShieldCheck, UserCog, Users } from "lucide-react";
+import { CalendarCheck, History, LayoutDashboard, ShieldCheck, UserCog, Users } from "lucide-react";
 
 export default function AdminNav({ isSuper }: { isSuper: boolean }) {
   const pathname = usePathname();
 
   const links = [
     { href: "/admin", label: "Overview", icon: LayoutDashboard },
+    { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
     { href: "/admin/technicians", label: "Technician approvals", icon: ShieldCheck },
     { href: "/admin/users", label: "Customers & technicians", icon: Users },
     ...(isSuper

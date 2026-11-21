@@ -63,7 +63,12 @@ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
       return;
     }
 
-    router.push(homePath);
+    // Go back to where they were heading (e.g. /book), but only to a page on
+    // THIS site: "//evil.com", "/\evil.com" or "https://..." would be an open redirect.
+    const next = new URLSearchParams(window.location.search).get("next");
+    const safeNext = next && /^\/(?![/\\])/.test(next) ? next : null;
+
+    router.push(safeNext ?? homePath);
     router.refresh();
   } catch {
     setError("Unable to connect to ValleyFix. Please try again.");

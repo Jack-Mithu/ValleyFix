@@ -90,7 +90,7 @@ export default function Hero() {
           >
             <motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.97 }}>
               <Link
-                href="/register"
+                href="/book"
                 className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gold-400 px-7 py-4 font-semibold text-oxford-900 shadow-xl shadow-gold-500/30 transition-colors hover:bg-marigold-400 sm:w-auto"
               >
                 Book a service

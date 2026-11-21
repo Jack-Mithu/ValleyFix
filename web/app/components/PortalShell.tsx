@@ -13,7 +13,8 @@ export default function PortalShell({
   label: string;
   user: SessionUser;
   description: string;
-  sections: string[];
+  /** Optional "coming soon" tiles for features not built yet. */
+  sections?: string[];
   children?: ReactNode;
 }) {
   return (
@@ -52,14 +53,16 @@ export default function PortalShell({
 
           {children}
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {sections.map((item) => (
-              <div key={item} className="rounded-xl border border-slate-200 p-5">
-                <h2 className="font-semibold text-slate-800">{item}</h2>
-                <p className="mt-2 text-sm text-slate-600">Coming soon</p>
-              </div>
-            ))}
-          </div>
+          {sections && sections.length > 0 && (
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {sections.map((item) => (
+                <div key={item} className="rounded-xl border border-slate-200 p-5">
+                  <h2 className="font-semibold text-slate-800">{item}</h2>
+                  <p className="mt-2 text-sm text-slate-600">Coming soon</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </main>

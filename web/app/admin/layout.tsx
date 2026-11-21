@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
+import { KeyRound } from "lucide-react";
 import { requireRole } from "@/app/lib/require-role";
 import Logo from "@/app/components/Logo";
 import AdminNav from "./nav";
@@ -17,6 +19,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             <span className="rounded-full bg-gold-400 px-2.5 py-1 text-xs font-bold text-oxford-900">
               {isSuper ? "Super admin" : "Sub admin"}
             </span>
+            <Link
+              href="/account/password"
+              aria-label="Change password"
+              className="rounded-lg border border-white/15 p-1.5 text-oxford-50 lg:hidden"
+            >
+              <KeyRound size={14} />
+            </Link>
             <form action="/api/auth/logout" method="post" className="lg:hidden">
               <button className="rounded-lg border border-white/15 px-2.5 py-1 text-xs font-medium text-oxford-50">Log out</button>
             </form>
@@ -28,7 +37,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         <div className="hidden border-t border-white/10 px-5 py-5 lg:mt-auto lg:block">
           <p className="truncate text-sm font-semibold">{user.name}</p>
           <p className="truncate text-xs text-oxford-200">{user.email}</p>
-          <form action="/api/auth/logout" method="post" className="mt-3">
+          <Link
+            href="/account/password"
+            className="mt-3 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-oxford-100 transition hover:bg-white/5 hover:text-white"
+          >
+            <KeyRound size={16} className="text-gold-400" /> Change password
+          </Link>
+          <form action="/api/auth/logout" method="post" className="mt-2">
             <button className="w-full rounded-xl border border-white/15 px-3 py-2 text-sm font-medium text-oxford-50 transition hover:bg-white/10">
               Log out
             </button>

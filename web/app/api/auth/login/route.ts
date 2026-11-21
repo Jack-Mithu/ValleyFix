@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getBackendUrl } from '@/app/lib/auth';
-import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS } from '@/app/lib/session';
+import { SESSION_COOKIE, sessionCookieOptions } from '@/app/lib/session';
 
 // "Backend for frontend": the browser posts here, we forward to NestJS,
 // then keep the JWT in an httpOnly cookie the browser can't read with JS.
@@ -64,13 +64,7 @@ export async function POST(request: NextRequest) {
       user: data.user,
     });
 
-    response.cookies.set(SESSION_COOKIE, data.accessToken, {
-      httpOnly: true, // JavaScript (and XSS) can't read it
-      secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
-      sameSite: 'lax', // not sent on cross-site POSTs (CSRF protection)
-      path: '/',
-      maxAge: SESSION_MAX_AGE_SECONDS,
-    });
+    response.cookies.set(SESSION_COOKIE, data.accessToken, sessionCookieOptions);
 
     return response;
   } catch (error) {

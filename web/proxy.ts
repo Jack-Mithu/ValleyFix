@@ -19,5 +19,5 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Only run on areas that need a logged-in user.
-  matcher: ["/dashboard/:path*", "/technician/:path*", "/admin/:path*"],
+  matcher: ["/dashboard/:path*", "/technician/:path*", "/admin/:path*", "/account/:path*"],
 };

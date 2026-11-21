@@ -13,6 +13,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegisterTechnicianDto } from './dto/register-technician.dto.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { UploadsService } from '../uploads/uploads.service.js';
 
 @Injectable()
@@ -583,5 +584,56 @@ export class AuthService {
         role: user.role.name,
       },
     };
+  }
+
+  // CHANGE PASSWORD (any logged-in user)
+  async changePassword(userId: number, dto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { role: true },
+    });
+
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('Your session is no longer valid');
+    }
+
+    // Proves it's really the account owner, not someone at an unlocked screen.
+    const currentMatches = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    if (!currentMatches) {
+      throw new BadRequestException('Your current password is incorrect.');
+    }
+
+    if (await bcrypt.compare(dto.newPassword, user.passwordHash)) {
+      throw new BadRequestException('Your new password must be different from your current one.');
+    }
+
+    // Admin accounts can see everyone's data, so they need longer passwords.
+    const isAdmin = user.role.name === 'admin' || user.role.name === 'super_admin';
+    if (isAdmin && dto.newPassword.length < 10) {
+      throw new BadRequestException('Admin passwords must be at least 10 characters.');
+    }
+
+    const changedAt = new Date();
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash: await bcrypt.hash(dto.newPassword, 12),
+        passwordChangedAt: changedAt,
+      },
+    });
+
+    await this.prisma.auditLog.create({
+      data: { userId: user.id, action: 'auth.password_change', entity: 'User', entityId: user.id },
+    });
+
+    // Every older token is now rejected (see JwtStrategy), so hand back a
+    // fresh one: this device stays signed in, all other devices are signed out.
+    const accessToken = await this.jwtService.signAsync({
+      sub: user.id,
+      email: user.email,
+      role: user.role.name,
+    });
+
+    return { message: 'Password changed successfully.', accessToken };
   }
 }

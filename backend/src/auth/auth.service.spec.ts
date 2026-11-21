@@ -11,8 +11,9 @@ describe('AuthService', () => {
 
   // Fakes for everything AuthService depends on, so no real database is needed.
   const prisma = {
-    user: { findUnique: vi.fn(), create: vi.fn() },
+    user: { findUnique: vi.fn(), create: vi.fn(), update: vi.fn() },
     role: { findFirst: vi.fn() },
+    auditLog: { create: vi.fn() },
     customerProfile: { create: vi.fn() },
     address: { create: vi.fn() },
     // Run the transaction callback against the same fake client.
@@ -144,6 +145,53 @@ describe('AuthService', () => {
         true,
       );
       expect(result.address.postcode).toBe('CF14 3AB');
+    });
+  });
+
+  describe('changePassword', () => {
+    const account = async (role = 'customer', password = 'OldPassword1') => ({
+      id: 7,
+      email: 'rhys@example.com',
+      isActive: true,
+      passwordHash: await bcrypt.hash(password, 4),
+      role: { name: role },
+    });
+
+    it('rejects a wrong current password', async () => {
+      prisma.user.findUnique.mockResolvedValue(await account());
+      await expect(
+        service.changePassword(7, { currentPassword: 'nope', newPassword: 'NewPassword1' }),
+      ).rejects.toThrow('Your current password is incorrect.');
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects reusing the same password', async () => {
+      prisma.user.findUnique.mockResolvedValue(await account());
+      await expect(
+        service.changePassword(7, { currentPassword: 'OldPassword1', newPassword: 'OldPassword1' }),
+      ).rejects.toThrow('must be different');
+    });
+
+    it('requires at least 10 characters for admins', async () => {
+      prisma.user.findUnique.mockResolvedValue(await account('admin'));
+      await expect(
+        service.changePassword(7, { currentPassword: 'OldPassword1', newPassword: 'Short123' }),
+      ).rejects.toThrow('Admin passwords must be at least 10 characters.');
+    });
+
+    it('stores a new hash, records the change time and returns a fresh token', async () => {
+      prisma.user.findUnique.mockResolvedValue(await account());
+
+      const result = await service.changePassword(7, {
+        currentPassword: 'OldPassword1',
+        newPassword: 'BrandNewPass1',
+      });
+
+      const { data } = prisma.user.update.mock.calls[0][0];
+      expect(await bcrypt.compare('BrandNewPass1', data.passwordHash)).toBe(true);
+      expect(data.passwordChangedAt).toBeInstanceOf(Date);
+      expect(prisma.auditLog.create).toHaveBeenCalled();
+      expect(result.accessToken).toBe('signed-token');
     });
   });
 });

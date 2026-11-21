@@ -10,6 +10,8 @@ export type JwtPayload = {
   sub: number;
   email: string;
   role: string;
+  /** "Issued at", in whole seconds. Added automatically when the token is signed. */
+  iat?: number;
 };
 
 // What controllers receive as `req.user` after a successful check.
@@ -57,6 +59,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (!user || !user.isActive) {
       throw new UnauthorizedException('Your session is no longer valid');
+    }
+
+    // Tokens issued before the last password change are no longer valid.
+    // (`iat` is in whole seconds, so compare seconds to seconds.)
+    if (user.passwordChangedAt && payload.iat !== undefined) {
+      const changedAtSeconds = Math.floor(user.passwordChangedAt.getTime() / 1000);
+      if (payload.iat < changedAtSeconds) {
+        throw new UnauthorizedException('Your password was changed. Please sign in again.');
+      }
     }
 
     return {

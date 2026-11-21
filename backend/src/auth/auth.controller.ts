@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   UploadedFiles,
   UseGuards,
@@ -18,6 +19,8 @@ import { RegisterDto } from './dto/register.dto.js';
 import { RegisterTechnicianDto } from './dto/register-technician.dto.js';
 
 import { LoginDto } from './dto/login.dto.js';
+
+import { ChangePasswordDto } from './dto/change-password.dto.js';
 
 import { JwtAuthGuard } from './jwt-auth.guard.js';
 
@@ -46,6 +49,16 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   me(@CurrentUser() user: AuthenticatedUser) {
     return { user };
+  }
+
+  // CHANGE PASSWORD — any logged-in user; returns a fresh token
+  @Patch('password')
+  @UseGuards(JwtAuthGuard)
+  changePassword(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(user.id, dto);
   }
 
   // TECHNICIAN REGISTRATION — multipart/form-data

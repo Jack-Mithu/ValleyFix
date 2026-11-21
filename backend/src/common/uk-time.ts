@@ -79,3 +79,9 @@ export const toMinutes = (time: string) => {
 /** 570 -> "09:30" */
 export const fromMinutes = (minutes: number) =>
   `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+
+/** The UK wall-clock time of an instant, as "HH:mm". */
+export function ukTime(instant: Date): string {
+  const p = ukParts(instant);
+  return `${String(p.hour).padStart(2, '0')}:${String(p.minute).padStart(2, '0')}`;
+}

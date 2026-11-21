@@ -40,6 +40,27 @@ export class BookingsController {
     return this.bookings.mine(user);
   }
 
+  // ----- Technician: requests to accept -----
+
+  @Get('requests')
+  @Roles(Role.TECHNICIAN)
+  requests(@CurrentUser() user: AuthenticatedUser) {
+    return this.bookings.requests(user);
+  }
+
+  @Get('technician-summary')
+  @Roles(Role.TECHNICIAN)
+  technicianSummary(@CurrentUser() user: AuthenticatedUser) {
+    return this.bookings.technicianSummary(user);
+  }
+
+  @Post(':id/accept')
+  @HttpCode(200)
+  @Roles(Role.TECHNICIAN)
+  accept(@CurrentUser() user: AuthenticatedUser, @Param('id', ParseIntPipe) id: number) {
+    return this.bookings.accept(user, id);
+  }
+
   // Any logged-in user; the service checks it's their booking (or an admin).
   @Get(':id')
   getOne(@CurrentUser() user: AuthenticatedUser, @Param('id', ParseIntPipe) id: number) {

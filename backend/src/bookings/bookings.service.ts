@@ -11,8 +11,27 @@ import { Role } from '../auth/roles.js';
 import type { AuthenticatedUser } from '../auth/jwt.strategy.js';
 import { BookingStatus } from '../generated/prisma/enums.js';
 import type { Prisma } from '../generated/prisma/client.js';
-import { addDays, dayOfWeek, fromMinutes, toMinutes, ukDate, ukToUtc } from '../common/uk-time.js';
+import {
+  addDays,
+  dayOfWeek,
+  fromMinutes,
+  toMinutes,
+  ukDate,
+  ukTime,
+  ukToUtc,
+} from '../common/uk-time.js';
 import type { AvailabilityQueryDto, CreateBookingDto } from './dto/bookings.dto.js';
+
+/*
+ * HOW BOOKING WORKS
+ *  1. A customer picks a time when at least one suitable technician is free.
+ *     The booking is created as a REQUEST (status PENDING, no technician).
+ *  2. Every approved technician who offers that service, covers that town and
+ *     is working + free at that time sees it under "Booking requests".
+ *  3. The first technician to accept gets the job (status CONFIRMED). Row
+ *     locks make sure only one technician can win, and nobody is double-booked.
+ *  4. Requests nobody accepted before their start time expire (CANCELLED).
+ */
 
 // ---- Booking rules (one place to change them) ----
 const SLOT_STEP_MINUTES = 60; // offer a start time every hour
@@ -20,19 +39,12 @@ const MIN_NOTICE_MINUTES = 120; // bookings need 2 hours' notice
 const MAX_DAYS_AHEAD = 30; // and can be up to 30 days ahead
 const START_EARLY_MINUTES = 60; // a technician may start a job up to 1 hour early
 
-// Bookings in these states hold the technician's time.
+// Bookings in these states hold a technician's time.
 const ACTIVE_STATUSES: BookingStatus[] = [
   BookingStatus.PENDING,
   BookingStatus.CONFIRMED,
   BookingStatus.IN_PROGRESS,
 ];
-
-type Slot = {
-  time: string; // "09:00" UK time
-  start: Date;
-  end: Date;
-  technicianIds: number[];
-};
 
 const bookingInclude = {
   service: { select: { id: true, name: true, durationInMinutes: true } },
@@ -48,6 +60,38 @@ const bookingInclude = {
 } satisfies Prisma.BookingInclude;
 
 type BookingWithRelations = Prisma.BookingGetPayload<{ include: typeof bookingInclude }>;
+
+/** What we need to know about a technician to decide if they can take a job. */
+type TechnicianSchedule = {
+  id: number;
+  approvalStatus: string;
+  services: Map<number, number>; // serviceId -> technician's price (0 = use base price)
+  cities: Set<string>; // lower-case
+  availability: { dayOfWeek: number; startTime: string; endTime: string }[];
+  exceptions: { exceptionDate: Date; startTime: string; endTime: string }[];
+};
+
+/** "CF14 3AB" -> "CF14": enough to judge distance, without the exact street. */
+function postcodeArea(postcode: string) {
+  const clean = postcode.trim().toUpperCase();
+  return clean.includes(' ') ? clean.split(/\s+/)[0] : clean.slice(0, Math.max(2, clean.length - 3));
+}
+
+/** Is the technician working (and not on a day off) for this whole time? */
+function worksAt(tech: TechnicianSchedule, start: Date, end: Date) {
+  const date = ukDate(start);
+  const from = toMinutes(ukTime(start));
+  const to = from + Math.round((end.getTime() - start.getTime()) / 60_000);
+  const weekday = dayOfWeek(date);
+
+  const inHours = tech.availability.some(
+    (a) => a.dayOfWeek === weekday && toMinutes(a.startTime) <= from && to <= toMinutes(a.endTime),
+  );
+  const dayOff = tech.exceptions.some(
+    (ex) => ukDate(ex.exceptionDate) === date && toMinutes(ex.startTime) < to && toMinutes(ex.endTime) > from,
+  );
+  return inHours && !dayOff;
+}
 
 @Injectable()
 export class BookingsService {
@@ -103,13 +147,80 @@ export class BookingsService {
     }
   }
 
+  /** Load the parts of a technician's profile that decide which jobs they can do. */
+  private async technicianSchedule(userId: number): Promise<TechnicianSchedule | null> {
+    const tech = await this.prisma.technicianProfile.findUnique({
+      where: { userId },
+      select: {
+        id: true,
+        approvalStatus: true,
+        technicianServices: { where: { isActive: true }, select: { serviceId: true, price: true } },
+        technicianServiceAreas: {
+          where: { isActive: true },
+          select: { serviceArea: { select: { city: true } } },
+        },
+        technicianAvailability: {
+          where: { isAvailable: true },
+          select: { dayOfWeek: true, startTime: true, endTime: true },
+        },
+        technicianExceptions: {
+          where: { isAvailable: false, exceptionDate: { gte: new Date(Date.now() - 86_400_000) } },
+          select: { exceptionDate: true, startTime: true, endTime: true },
+        },
+      },
+    });
+    if (!tech) return null;
+
+    return {
+      id: tech.id,
+      approvalStatus: tech.approvalStatus,
+      services: new Map(tech.technicianServices.map((s) => [s.serviceId, Number(s.price)])),
+      cities: new Set(tech.technicianServiceAreas.map((a) => a.serviceArea.city.toLowerCase())),
+      availability: tech.technicianAvailability,
+      exceptions: tech.technicianExceptions,
+    };
+  }
+
+  private async approvedTechnician(user: AuthenticatedUser) {
+    const tech = await this.technicianSchedule(user.id);
+    if (!tech) throw new ForbiddenException('Technician account required.');
+    if (tech.approvalStatus !== 'APPROVED') {
+      throw new ForbiddenException('Your account must be approved before you can take jobs.');
+    }
+    return tech;
+  }
+
   /**
-   * Every start time on `date` when at least one suitable technician is free.
-   * A technician is suitable when they are approved and active, offer the
-   * service, cover the area, work that day, have no day-off exception and no
-   * overlapping booking.
+   * Requests nobody accepted before their start time can never happen:
+   * mark them cancelled so customers see a clear outcome. (Run whenever
+   * bookings are listed; a scheduled job could do this in the background.)
    */
-  private async computeSlots(serviceId: number, durationMinutes: number, areaId: number, date: string) {
+  private async expireStaleRequests() {
+    const stale = await this.prisma.booking.findMany({
+      where: { status: BookingStatus.PENDING, technicianProfileId: null, scheduledStart: { lte: new Date() } },
+      select: { id: true },
+    });
+    if (stale.length === 0) return;
+
+    const reason = 'No technician was available at this time.';
+    const ids = stale.map((b) => b.id);
+    await this.prisma.$transaction([
+      this.prisma.booking.updateMany({
+        where: { id: { in: ids }, status: BookingStatus.PENDING, technicianProfileId: null },
+        data: { status: BookingStatus.CANCELLED, cancelledAt: new Date(), cancellationReason: reason },
+      }),
+      this.prisma.bookingStatusHistory.createMany({
+        data: ids.map((bookingId) => ({ bookingId, status: BookingStatus.CANCELLED, note: reason })),
+      }),
+    ]);
+  }
+
+  /**
+   * Every start time on `date` that can still take a new request: at least one
+   * suitable technician is free, after allowing for requests already waiting
+   * for a technician in the same town at overlapping times.
+   */
+  private async computeSlots(serviceId: number, durationMinutes: number, area: { id: number; city: string }, date: string) {
     const weekday = dayOfWeek(date);
     const dayStart = ukToUtc(date, '00:00');
     const dayEnd = ukToUtc(addDays(date, 1), '00:00');
@@ -119,7 +230,7 @@ export class BookingsService {
         approvalStatus: 'APPROVED',
         user: { isActive: true },
         technicianServices: { some: { serviceId, isActive: true } },
-        technicianServiceAreas: { some: { serviceAreaId: areaId, isActive: true } },
+        technicianServiceAreas: { some: { serviceAreaId: area.id, isActive: true } },
         technicianAvailability: { some: { dayOfWeek: weekday, isAvailable: true } },
       },
       select: {
@@ -136,25 +247,37 @@ export class BookingsService {
           },
           select: { exceptionDate: true, startTime: true, endTime: true },
         },
-        technicianServices: { where: { serviceId }, select: { price: true } },
       },
     });
 
     const ids = technicians.map((t) => t.id);
-    const busy = ids.length
-      ? await this.prisma.booking.findMany({
-          where: {
-            technicianProfileId: { in: ids },
-            status: { in: ACTIVE_STATUSES },
-            scheduledStart: { lt: dayEnd },
-            scheduledEnd: { gt: dayStart },
-          },
-          select: { technicianProfileId: true, scheduledStart: true, scheduledEnd: true },
-        })
-      : [];
+    const [busy, waiting] = await Promise.all([
+      ids.length
+        ? this.prisma.booking.findMany({
+            where: {
+              technicianProfileId: { in: ids },
+              status: { in: ACTIVE_STATUSES },
+              scheduledStart: { lt: dayEnd },
+              scheduledEnd: { gt: dayStart },
+            },
+            select: { technicianProfileId: true, scheduledStart: true, scheduledEnd: true },
+          })
+        : Promise.resolve([]),
+      // Requests in this town still waiting for someone to accept them.
+      this.prisma.booking.findMany({
+        where: {
+          status: BookingStatus.PENDING,
+          technicianProfileId: null,
+          scheduledStart: { lt: dayEnd },
+          scheduledEnd: { gt: dayStart },
+          address: { city: { equals: area.city, mode: 'insensitive' } },
+        },
+        select: { scheduledStart: true, scheduledEnd: true },
+      }),
+    ]);
 
     const earliestStart = Date.now() + MIN_NOTICE_MINUTES * 60_000;
-    const slots = new Map<string, Slot>();
+    const free = new Map<string, { time: string; start: Date; end: Date; technicians: number }>();
 
     for (const tech of technicians) {
       for (const window of tech.technicianAvailability) {
@@ -180,30 +303,20 @@ export class BookingsService {
           );
           if (clash) continue;
 
-          const slot = slots.get(time) ?? { time, start, end, technicianIds: [] };
-          slot.technicianIds.push(tech.id);
-          slots.set(time, slot);
+          const slot = free.get(time) ?? { time, start, end, technicians: 0 };
+          slot.technicians += 1;
+          free.set(time, slot);
         }
       }
     }
 
-    // How many jobs each technician already has that day (to share work fairly).
-    const jobsThatDay = new Map<number, number>();
-    for (const b of busy) {
-      if (b.technicianProfileId) {
-        jobsThatDay.set(b.technicianProfileId, (jobsThatDay.get(b.technicianProfileId) ?? 0) + 1);
-      }
-    }
-
-    const prices = new Map(
-      technicians.map((t) => [t.id, Number(t.technicianServices[0]?.price ?? 0)]),
-    );
-
-    return {
-      slots: [...slots.values()].sort((a, b) => a.time.localeCompare(b.time)),
-      jobsThatDay,
-      prices,
-    };
+    // A slot is bookable only if free technicians outnumber waiting requests.
+    return [...free.values()]
+      .filter((slot) => {
+        const waitingThen = waiting.filter((w) => w.scheduledStart < slot.end && w.scheduledEnd > slot.start).length;
+        return slot.technicians > waitingThen;
+      })
+      .sort((a, b) => a.time.localeCompare(b.time));
   }
 
   private newReference() {
@@ -219,6 +332,9 @@ export class BookingsService {
     const isCustomer = viewer.role === Role.CUSTOMER;
     const isAdmin = viewer.role === Role.ADMIN || viewer.role === Role.SUPER_ADMIN;
     const isTechnician = viewer.role === Role.TECHNICIAN;
+    const isOpenRequest = booking.status === BookingStatus.PENDING && !tech;
+    // A technician looking at a request they haven't accepted yet.
+    const isRequestView = isTechnician && isOpenRequest;
     const now = Date.now();
     const startsAt = booking.scheduledStart.getTime();
 
@@ -231,7 +347,15 @@ export class BookingsService {
       scheduledEnd: booking.scheduledEnd,
       description: booking.description,
       estimatedPrice: Number(booking.estimatedPrice),
-      address: booking.address,
+      // Before accepting, technicians see the town and postcode area only.
+      address: isRequestView
+        ? {
+            addressLine1: '',
+            addressLine2: null,
+            city: booking.address.city,
+            postalCode: postcodeArea(booking.address.postalCode),
+          }
+        : booking.address,
       cancelledAt: booking.cancelledAt,
       cancellationReason: booking.cancellationReason,
       createdAt: booking.createdAt,
@@ -241,17 +365,19 @@ export class BookingsService {
           ? { name: `${tech.firstName} ${tech.lastName.charAt(0)}.` }
           : { id: tech.id, userId: tech.userId, name: `${tech.firstName} ${tech.lastName}` }
         : null,
-      // Technicians and admins need the customer's name and phone to do the job.
-      customer: isCustomer
-        ? undefined
-        : {
-            name: booking.customerProfile.user.name,
-            phone: booking.customerProfile.user.phone,
-          },
+      // The assigned technician and admins need the customer's name and phone.
+      customer:
+        isCustomer || isRequestView
+          ? undefined
+          : {
+              name: booking.customerProfile.user.name,
+              phone: booking.customerProfile.user.phone,
+            },
       // What this viewer may do right now. The website/app uses these flags to
       // show buttons, so the rules live in ONE place (here), not in every client.
       // The action endpoints below still enforce the same rules.
       allowedActions: {
+        accept: isRequestView && startsAt > now,
         cancel:
           (isAdmin && ACTIVE_STATUSES.includes(booking.status)) ||
           (isCustomer &&
@@ -259,6 +385,7 @@ export class BookingsService {
             startsAt > now),
         start:
           isTechnician &&
+          !isRequestView &&
           booking.status === BookingStatus.CONFIRMED &&
           now >= startsAt - START_EARLY_MINUTES * 60_000,
         complete: isTechnician && booking.status === BookingStatus.IN_PROGRESS,
@@ -319,7 +446,7 @@ export class BookingsService {
     const { service, area } = await this.bookingContext(user, query.serviceId, query.addressId);
     this.assertBookableDate(query.date);
 
-    const { slots } = await this.computeSlots(service.id, service.durationInMinutes, area.id, query.date);
+    const slots = await this.computeSlots(service.id, service.durationInMinutes, area, query.date);
 
     return {
       date: query.date,
@@ -330,79 +457,50 @@ export class BookingsService {
     };
   }
 
+  /** Creates a booking REQUEST; a technician confirms it by accepting. */
   async create(user: AuthenticatedUser, dto: CreateBookingDto) {
     const customerProfileId = await this.customerProfileId(user);
     const { service, address, area } = await this.bookingContext(user, dto.serviceId, dto.addressId);
     this.assertBookableDate(dto.date);
 
-    const { slots, jobsThatDay, prices } = await this.computeSlots(
-      service.id,
-      service.durationInMinutes,
-      area.id,
-      dto.date,
-    );
+    const slots = await this.computeSlots(service.id, service.durationInMinutes, area, dto.date);
     const slot = slots.find((s) => s.time === dto.time);
     if (!slot) {
       throw new ConflictException('That time is no longer available. Please choose another.');
     }
 
-    // Least-busy technician first, to share work fairly.
-    const candidates = [...slot.technicianIds].sort(
-      (a, b) => (jobsThatDay.get(a) ?? 0) - (jobsThatDay.get(b) ?? 0),
-    );
-
-    for (const technicianId of candidates) {
-      const created = await this.prisma.$transaction(async (tx) => {
-        // Lock this technician's row. If two customers book the same technician
-        // at the same moment, the second waits here, then sees the first booking
-        // in the re-check below, so a technician can never be double-booked.
-        await tx.$queryRaw`SELECT id FROM technician_profiles WHERE id = ${technicianId} FOR UPDATE`;
-
-        const clash = await tx.booking.count({
-          where: {
-            technicianProfileId: technicianId,
-            status: { in: ACTIVE_STATUSES },
-            scheduledStart: { lt: slot.end },
-            scheduledEnd: { gt: slot.start },
-          },
-        });
-        if (clash > 0) return null;
-
-        const techPrice = prices.get(technicianId) ?? 0;
-        const booking = await tx.booking.create({
-          data: {
-            booking_reference: this.newReference(),
-            customerProfileId,
-            serviceId: service.id,
-            addressId: address.id,
-            technicianProfileId: technicianId,
-            status: BookingStatus.CONFIRMED,
-            scheduledStart: slot.start,
-            scheduledEnd: slot.end,
-            description: dto.description || null,
-            estimatedPrice: techPrice > 0 ? techPrice : service.basePrice,
-          },
-          include: bookingInclude,
-        });
-
-        await tx.bookingStatusHistory.create({
-          data: { bookingId: booking.id, status: BookingStatus.CONFIRMED, changedById: user.id },
-        });
-
-        return booking;
+    const booking = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.booking.create({
+        data: {
+          booking_reference: this.newReference(),
+          customerProfileId,
+          serviceId: service.id,
+          addressId: address.id,
+          status: BookingStatus.PENDING,
+          scheduledStart: slot.start,
+          scheduledEnd: slot.end,
+          description: dto.description || null,
+          // The accepting technician's own price replaces this, if they set one.
+          estimatedPrice: service.basePrice,
+        },
+        include: bookingInclude,
       });
+      await tx.bookingStatusHistory.create({
+        data: { bookingId: created.id, status: BookingStatus.PENDING, changedById: user.id, note: 'Requested by customer' },
+      });
+      return created;
+    });
 
-      if (created) return this.present(created, user);
-    }
-
-    throw new ConflictException('That time was just taken. Please choose another.');
+    return this.present(booking, user);
   }
 
   // =========================================================================
-  // Customers and technicians: their own bookings
+  // Everyone: their own bookings
   // =========================================================================
 
   async mine(user: AuthenticatedUser) {
+    await this.expireStaleRequests();
+
     const where: Prisma.BookingWhereInput =
       user.role === Role.TECHNICIAN
         ? { technicianProfile: { userId: user.id } }
@@ -429,7 +527,7 @@ export class BookingsService {
     }
 
     const cancellable: BookingStatus[] = isAdmin
-      ? [BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS]
+      ? ACTIVE_STATUSES
       : [BookingStatus.PENDING, BookingStatus.CONFIRMED];
 
     if (!cancellable.includes(booking.status)) {
@@ -440,17 +538,134 @@ export class BookingsService {
     }
 
     const note = reason || (isAdmin ? 'Cancelled by ValleyFix' : 'Cancelled by customer');
-    await this.changeStatus(booking.id, BookingStatus.CANCELLED, user, {
-      cancelledAt: new Date(),
-      cancellationReason: note,
-    }, note);
+    await this.changeStatus(
+      booking.id,
+      BookingStatus.CANCELLED,
+      user,
+      { cancelledAt: new Date(), cancellationReason: note },
+      note,
+    );
 
     return this.getOne(user, id);
   }
 
   // =========================================================================
-  // Technicians: doing the job
+  // Technicians: requests and doing the job
   // =========================================================================
+
+  /** Open requests this technician could take: right service, town, hours, and free. */
+  async requests(user: AuthenticatedUser) {
+    const tech = await this.approvedTechnician(user);
+    await this.expireStaleRequests();
+
+    const now = new Date();
+    const [open, myJobs] = await Promise.all([
+      this.prisma.booking.findMany({
+        where: {
+          status: BookingStatus.PENDING,
+          technicianProfileId: null,
+          serviceId: { in: [...tech.services.keys()] },
+          scheduledStart: { gt: now },
+        },
+        include: bookingInclude,
+        orderBy: { scheduledStart: 'asc' },
+        take: 200,
+      }),
+      this.prisma.booking.findMany({
+        where: { technicianProfileId: tech.id, status: { in: ACTIVE_STATUSES }, scheduledEnd: { gt: now } },
+        select: { scheduledStart: true, scheduledEnd: true },
+      }),
+    ]);
+
+    return open
+      .filter((b) => tech.cities.has(b.address.city.trim().toLowerCase()))
+      .filter((b) => worksAt(tech, b.scheduledStart, b.scheduledEnd))
+      .filter((b) => !myJobs.some((j) => j.scheduledStart < b.scheduledEnd && j.scheduledEnd > b.scheduledStart))
+      .map((b) => this.present(b, user));
+  }
+
+  /** First technician to accept gets the job. */
+  async accept(user: AuthenticatedUser, id: number) {
+    const tech = await this.approvedTechnician(user);
+
+    await this.prisma.$transaction(async (tx) => {
+      // Lock the request: if two technicians accept at the same moment, the
+      // second waits here and then sees it's already taken.
+      await tx.$queryRaw`SELECT id FROM bookings WHERE id = ${id} FOR UPDATE`;
+      const booking = await tx.booking.findUnique({
+        where: { id },
+        select: {
+          status: true,
+          technicianProfileId: true,
+          serviceId: true,
+          scheduledStart: true,
+          scheduledEnd: true,
+          estimatedPrice: true,
+          address: { select: { city: true } },
+        },
+      });
+
+      if (!booking) throw new NotFoundException('Request not found.');
+      if (booking.status !== BookingStatus.PENDING || booking.technicianProfileId) {
+        throw new ConflictException('Sorry, this request has already been taken or cancelled.');
+      }
+      if (booking.scheduledStart.getTime() <= Date.now()) {
+        throw new BadRequestException('This request has expired.');
+      }
+
+      const suitable =
+        tech.services.has(booking.serviceId) &&
+        tech.cities.has(booking.address.city.trim().toLowerCase()) &&
+        worksAt(tech, booking.scheduledStart, booking.scheduledEnd);
+      if (!suitable) {
+        throw new ForbiddenException("This request doesn't match your services, areas or working hours.");
+      }
+
+      // Lock this technician too, so they can't be booked twice for the same time.
+      await tx.$queryRaw`SELECT id FROM technician_profiles WHERE id = ${tech.id} FOR UPDATE`;
+      const clash = await tx.booking.count({
+        where: {
+          technicianProfileId: tech.id,
+          status: { in: ACTIVE_STATUSES },
+          scheduledStart: { lt: booking.scheduledEnd },
+          scheduledEnd: { gt: booking.scheduledStart },
+        },
+      });
+      if (clash > 0) throw new ConflictException('You already have a job at that time.');
+
+      const techPrice = tech.services.get(booking.serviceId) ?? 0;
+      await tx.booking.update({
+        where: { id },
+        data: {
+          technicianProfileId: tech.id,
+          status: BookingStatus.CONFIRMED,
+          ...(techPrice > 0 && { estimatedPrice: techPrice }),
+        },
+      });
+      await tx.bookingStatusHistory.create({
+        data: { bookingId: id, status: BookingStatus.CONFIRMED, changedById: user.id, note: 'Accepted by technician' },
+      });
+    });
+
+    return this.getOne(user, id);
+  }
+
+  /** Counts for the technician's sidebar badges. */
+  async technicianSummary(user: AuthenticatedUser) {
+    const tech = await this.technicianSchedule(user.id);
+    if (!tech || tech.approvalStatus !== 'APPROVED') {
+      return { requests: 0, accepted: 0, pending: 0, completed: 0 };
+    }
+    const [requests, mine] = await Promise.all([this.requests(user), this.mine(user)]);
+    return {
+      requests: requests.length,
+      accepted: mine.filter((b) => b.status === BookingStatus.CONFIRMED && !b.allowedActions.start).length,
+      pending: mine.filter(
+        (b) => b.status === BookingStatus.IN_PROGRESS || (b.status === BookingStatus.CONFIRMED && b.allowedActions.start),
+      ).length,
+      completed: mine.filter((b) => b.status === BookingStatus.COMPLETED).length,
+    };
+  }
 
   private async assignedBooking(user: AuthenticatedUser, id: number) {
     const { booking, isAssigned } = await this.findForViewer(user, id);
@@ -487,6 +702,8 @@ export class BookingsService {
   // =========================================================================
 
   async adminList(user: AuthenticatedUser, status?: BookingStatus, page = 1, pageSize = 20) {
+    await this.expireStaleRequests();
+
     const where: Prisma.BookingWhereInput = status ? { status } : {};
     const [total, bookings] = await Promise.all([
       this.prisma.booking.count({ where }),

@@ -9,6 +9,7 @@ import { AdminModule } from './admin/admin.module.js';
 import { CatalogModule } from './catalog/catalog.module.js';
 import { BookingsModule } from './bookings/bookings.module.js';
 import { CustomersModule } from './customers/customers.module.js';
+import { TechniciansModule } from './technicians/technicians.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -30,6 +31,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     CatalogModule,
     BookingsModule,
     CustomersModule,
+    TechniciansModule,
   ],
   controllers: [AppController],
   providers: [AppService],

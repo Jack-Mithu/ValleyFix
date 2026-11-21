@@ -26,3 +26,11 @@ describe('UK time helpers', () => {
     expect(fromMinutes(570)).toBe('09:30');
   });
 });
+
+describe('ukTime', () => {
+  it('gives UK wall-clock time in winter and summer', async () => {
+    const { ukTime } = await import('./uk-time.js');
+    expect(ukTime(new Date('2026-12-01T09:30:00Z'))).toBe('09:30'); // GMT
+    expect(ukTime(new Date('2026-07-01T08:30:00Z'))).toBe('09:30'); // BST
+  });
+});
